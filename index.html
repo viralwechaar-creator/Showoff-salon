@@ -3,178 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Showoff Salon, Sardarpura, Jodhpur</title>
-<meta name="description" content="Unisex salon in Sardarpura, Jodhpur. Facials, hair colour, hair treatments, waxing, manicure and pedicure. Book an appointment online.">
-<meta name="theme-color" content="#391D21">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin, Showoff Salon</title>
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/admin/admin.css">
 </head>
-<body>
-<a class="skip" href="#main">Skip to content</a>
+<body class="adm">
 
-<header class="hdr" id="hdr">
-  <div class="wrap hdr-in">
-    <a class="brand" href="#top" aria-label="Showoff Salon, home">
-      <img src="/assets/logo-plum.png" alt="" width="40" height="40">
-      <span id="brandName">Showoff Salon</span>
+<section class="a-login" id="login" hidden>
+  <div class="a-login-card">
+    <img src="/assets/logo-plum.png" alt="Showoff Salon" width="88" height="88">
+    <h1>Admin</h1>
+    <form id="loginForm">
+      <div class="field"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <p class="error" id="loginError" role="alert"></p>
+      <button class="btn btn-wide" type="submit">Sign in</button>
+    </form>
+    <a class="link" href="/">Back to website</a>
+  </div>
+</section>
+
+<div class="a-app" id="app" hidden>
+  <aside class="a-side">
+    <a class="a-brand" href="/" target="_blank" rel="noopener" aria-label="Open website">
+      <img src="/assets/logo-cream.png" alt="" width="40" height="40"><span>Showoff Salon</span>
     </a>
-    <nav class="nav" id="nav" aria-label="Main">
-      <a href="#services">Services</a>
-      <a href="#menu">Menu</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#stylists">Our hairstylists</a>
-      <a href="#about">About us</a>
-      <a class="btn btn-sm" href="#book">Book appointment</a>
-    </nav>
-    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav"></button>
-  </div>
-</header>
-
-<main id="main">
-  <!-- Hero -->
-  <section class="hero" id="top">
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <h1 id="heroTitle">Hair, skin and nails, taken seriously.</h1>
-        <p class="lead" id="heroText"></p>
-        <div class="hero-cta">
-          <a class="btn" href="#book">Book appointment</a>
-          <a class="link" href="#menu">See the menu</a>
-        </div>
-      </div>
-      <div class="hero-mark" aria-hidden="true">
-        <div class="disc"><img src="/assets/logo-cream.png" alt="" width="900" height="900"></div>
-      </div>
+    <nav id="sideNav" aria-label="Admin"></nav>
+    <div class="a-side-foot">
+      <a href="/" target="_blank" rel="noopener">View website</a>
+      <button id="logout" type="button">Sign out</button>
     </div>
-    <dl class="wrap facts" id="facts"></dl>
-  </section>
+  </aside>
+  <main class="a-main">
+    <header class="a-top"><h1 id="viewTitle"></h1><div class="a-actions" id="viewActions"></div></header>
+    <div id="view"></div>
+  </main>
+</div>
 
-  <!-- Services -->
-  <section class="sec" id="services">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Services</h2>
-        <p id="servicesText"></p>
-      </div>
-      <ul class="svc-list" id="svcList"></ul>
-    </div>
-  </section>
-
-  <!-- Menu slider -->
-  <section class="sec sec-tint" id="menu">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Treatment menu</h2>
-        <p id="menuText"></p>
-      </div>
-      <div class="menu-bar">
-        <div class="seg" role="group" aria-label="Show menu for">
-          <button data-g="all" aria-pressed="true">Everything</button>
-          <button data-g="female" aria-pressed="false">Women</button>
-          <button data-g="male" aria-pressed="false">Men</button>
-        </div>
-        <div class="menu-nav">
-          <span class="count" id="menuCount" aria-live="polite"></span>
-          <button class="sq" id="prevSlide" aria-label="Previous menu page"></button>
-          <button class="sq" id="nextSlide" aria-label="Next menu page"></button>
-        </div>
-      </div>
-      <div class="tabs" id="menuTabs" role="tablist" aria-label="Menu pages"></div>
-      <div class="slider" id="slider" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Treatment menu"></div>
-      <p class="legend"><span id="legendStar"></span> Most popular</p>
-    </div>
-  </section>
-
-  <!-- Gallery -->
-  <section class="sec" id="gallery">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Gallery</h2>
-        <p id="galleryText"></p>
-      </div>
-      <div class="gal" id="galGrid"></div>
-    </div>
-  </section>
-
-  <!-- Hairstylists -->
-  <section class="sec sec-tint" id="stylists">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Our hairstylists</h2>
-        <p id="stylistsText"></p>
-      </div>
-      <div class="team" id="team"></div>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section class="sec" id="about">
-    <div class="wrap about">
-      <h2 id="aboutTitle"></h2>
-      <div class="about-body" id="aboutBody"></div>
-    </div>
-  </section>
-
-  <!-- Book -->
-  <section class="sec sec-plum" id="book">
-    <div class="wrap book">
-      <div class="book-copy">
-        <h2>Book appointment</h2>
-        <p id="bookText"></p>
-      </div>
-      <div class="panel" id="bookPanel">
-        <form id="bookForm" novalidate>
-          <div class="field"><label for="bName">Your name</label><input id="bName" name="name" autocomplete="name" required maxlength="80"></div>
-          <div class="row2">
-            <div class="field"><label for="bPhone">Phone number</label><input id="bPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></div>
-            <div class="field"><label for="bEmail">Email (optional)</label><input id="bEmail" name="email" type="email" autocomplete="email" maxlength="120"></div>
-          </div>
-          <div class="field">
-            <label id="pickLabel">Services</label>
-            <details class="picker" id="picker">
-              <summary aria-labelledby="pickLabel"><span id="pickSummary">Choose services</span></summary>
-              <div class="pick-list" id="pickList"></div>
-            </details>
-            <div class="chips" id="pickChips"></div>
-          </div>
-          <div class="field"><label for="bDate">Date</label><input id="bDate" name="date" type="date" required></div>
-          <fieldset class="field" id="slotField">
-            <legend>Time</legend>
-            <div class="slots" id="slots"><p class="hint">Choose a date to see available times.</p></div>
-          </fieldset>
-          <div class="field"><label for="bNote">Anything we should know (optional)</label><textarea id="bNote" name="note" rows="2" maxlength="300"></textarea></div>
-          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <p class="error" id="bookError" role="alert"></p>
-          <button class="btn btn-wide" type="submit" id="bookBtn">Book appointment</button>
-        </form>
-        <div class="done" id="bookDone" hidden></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="foot">
-  <div class="wrap foot-grid">
-    <div>
-      <img src="/assets/logo-cream.png" alt="Showoff Salon" width="72" height="72">
-    </div>
-    <div id="footContact"></div>
-    <div id="footHours"></div>
-    <div class="foot-end"><a href="/admin">Staff login</a></div>
-  </div>
-</footer>
-
-<dialog class="lightbox" id="lightbox" aria-label="Gallery image">
-  <button class="lb-close" id="lbClose" aria-label="Close"></button>
-  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image"></button>
-  <figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure>
-  <button class="lb-nav lb-next" id="lbNext" aria-label="Next image"></button>
-</dialog>
-
+<div class="a-toast" id="toast" role="status" aria-live="polite"></div>
 <script src="/assets/dom.js"></script>
-<script src="/assets/app.js"></script>
+<script src="/admin/admin.js"></script>
 </body>
 </html>
