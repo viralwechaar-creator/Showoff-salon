@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>g{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}</style>
+  </defs>
+  <symbol id="sparkle" viewBox="0 0 64 64"><g><path d="M32 5C33.6 22 42 30.4 59 32 42 33.6 33.6 42 32 59 30.4 42 22 33.6 5 32 22 30.4 30.4 22 32 5Z"/></g></symbol>
+  <symbol id="star" viewBox="0 0 64 64"><path fill="currentColor" stroke="none" d="M32 3C34 22 42 30 61 32 42 34 34 42 32 61 30 42 22 34 3 32 22 30 30 22 32 3Z"/></symbol>
+  <symbol id="scissors" viewBox="0 0 64 64"><g><circle cx="19" cy="52" r="7"/><circle cx="45" cy="52" r="7"/><path d="M23.5 46.5 41.5 8M40.5 46.5 22.5 8"/><circle cx="32" cy="28" r="1.2"/></g></symbol>
+  <symbol id="comb" viewBox="0 0 64 64"><g><rect x="5" y="16" width="54" height="13" rx="5"/><path d="M11 29v17M17.5 29v14M24 29v17M30.5 29v14M37 29v17M43.5 29v14M50 29v17M56 29v10"/></g></symbol>
+  <symbol id="wave" viewBox="0 0 64 64"><g><path d="M4 38C12 20 22 20 27 33S40 50 46 34 56 18 60 26"/><path d="M4 50C12 34 22 34 27 46" opacity=".55"/></g></symbol>
+  <symbol id="leaf" viewBox="0 0 64 64"><g><path d="M10 54C8 26 28 8 56 8 56 38 40 56 10 54Z"/><path d="M10 54 38 26"/></g></symbol>
+  <symbol id="mirror" viewBox="0 0 64 64"><g><circle cx="32" cy="24" r="17"/><path d="M32 41v18M26 59h12"/><path d="M21 21a12 12 0 0 1 8-8"/></g></symbol>
+  <symbol id="polish" viewBox="0 0 64 64"><g><rect x="20" y="28" width="24" height="28" rx="6"/><rect x="26" y="19" width="12" height="9" rx="1"/><path d="M29 19V6h6v13M26 40h12"/></g></symbol>
+  <symbol id="dryer" viewBox="0 0 64 64"><g><path d="M6 20c0-6 5-10 12-10h20c8 0 16 5 16 13s-6 12-14 12H18C11 35 6 28 6 20Z"/><path d="M28 35 24 58h10l4-23"/><circle cx="46" cy="23" r="3"/></g></symbol>
+  <symbol id="arrow-l" viewBox="0 0 24 24"><g><path d="M15 5 8 12l7 7"/></g></symbol>
+  <symbol id="arrow-r" viewBox="0 0 24 24"><g><path d="m9 5 7 7-7 7"/></g></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><g><path d="M6 6l12 12M18 6 6 18"/></g></symbol>
+  <symbol id="menu" viewBox="0 0 24 24"><g><path d="M4 8h16M4 16h16"/></g></symbol>
+  <symbol id="whatsapp" viewBox="0 0 24 24"><g><path d="M4 20l1.3-4.2A8 8 0 1 1 8.4 18.9L4 20Z"/><path d="M9 9c0 3 3 6 6 6l1.3-1.5-2-1-1 .7a4 4 0 0 1-2-2l.7-1-1-2L9 9Z"/></g></symbol>
+</svg>

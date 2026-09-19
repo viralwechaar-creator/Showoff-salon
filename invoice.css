@@ -1,0 +1,31 @@
+.inv-body { background: var(--tint); padding: clamp(12px, 4vw, 48px) 12px; }
+.sheet { position: relative; max-width: 780px; margin: 0 auto; background: #fff; padding: clamp(24px, 6vw, 64px); overflow: hidden; }
+.inv-loading { color: var(--muted); }
+.inv-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+.inv-brand { display: flex; align-items: center; gap: 14px; }
+.inv-brand img { width: 56px; height: 56px; }
+.inv-brand strong { display: block; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; }
+.inv-brand span { display: block; color: var(--muted); font-size: 14px; max-width: 26ch; line-height: 1.4; }
+.inv-title { text-align: right; }
+.inv-title h1 { font-size: clamp(34px, 6vw, 52px); letter-spacing: -.04em; }
+.inv-title p { color: var(--muted); font-size: 15px; }
+.inv-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 44px; border-top: 1px solid var(--plum); padding-top: 16px; }
+.inv-meta dt { color: var(--muted); font-size: 14px; }
+.inv-meta dd { font-weight: 500; margin-bottom: 10px; }
+.inv-table { width: 100%; border-collapse: collapse; margin-top: 28px; font-variant-numeric: tabular-nums; }
+.inv-table th { text-align: left; font-weight: 500; color: var(--muted); font-size: 14px; padding: 8px 0; border-bottom: 1px solid var(--plum); }
+.inv-table td { padding: 12px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.inv-table .n { text-align: right; white-space: nowrap; padding-left: 16px; }
+.inv-totals { margin: 20px 0 0 auto; width: min(320px, 100%); font-variant-numeric: tabular-nums; }
+.inv-totals div { display: flex; justify-content: space-between; padding: 6px 0; }
+.inv-totals .grand { border-top: 1px solid var(--plum); margin-top: 8px; padding-top: 14px; font-size: 26px; font-weight: 500; letter-spacing: -.02em; }
+.inv-note { margin-top: 32px; color: var(--muted); font-size: 15px; }
+.inv-foot { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.sheet .doodle { position: absolute; right: -18px; bottom: 60px; width: 110px; color: var(--gold); opacity: .8; }
+.inv-actions { max-width: 780px; margin: 20px auto 0; display: flex; justify-content: center; }
+@media print {
+  .inv-body { background: #fff; padding: 0; }
+  .sheet { max-width: none; padding: 0; }
+  .no-print { display: none !important; }
+  @page { margin: 16mm; }
+}
