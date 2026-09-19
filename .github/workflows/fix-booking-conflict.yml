@@ -11,15 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
-      - name: Patch API
-        run: python3 fix_booking.py
+      - name: Check files
+        run: |
+          echo "Repository files:"
+          find . -maxdepth 3 -type f | sort
+          echo "Checking API file:"
+          test -f "api/[...path].js"
 
-      - name: Commit changes
+      - name: Run patch
+        run: |
+          python3 fix_booking.py
+
+      - name: Show result
+        run: |
+          grep -n "forceOverwrite" "api/[...path].js" || true
+          grep -n "db.bookings.push" "api/[...path].js" || true
+
+      - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add api/[...path].js
-          git commit -m "Fix booking conflict" || true
+          git add "api/[...path].js"
+          git commit -m "Fix booking conflict" || echo "No changes"
           git push
