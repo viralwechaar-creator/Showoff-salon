@@ -1,0 +1,110 @@
+name: Fix Booking Save Conflict
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix-booking:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Patch booking save logic
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path("api/[...path].js")
+          text = path.read_text()
+
+          old = """async function writeJsonBlob(key, data, etag) {
+            const { put } = await blob();
+            try {
+              await put(key, JSON.stringify(data), Object.assign(
+                { access: 'private', contentType: 'application/json', addRandomSuffix: false },
+                etag ? { allowOverwrite: true, ifMatch: etag } : { allowOverwrite: false }
+              ));
+            } catch (e) { if (isConflict(e)) throw conflictErr(); throw e; }
+          }"""
+
+          new = """async function writeJsonBlob(key, data, etag, forceOverwrite = false) {
+            const { put } = await blob();
+            try {
+              const options = {
+                access: 'private',
+                contentType: 'application/json',
+                addRandomSuffix: false
+              };
+
+              if (forceOverwrite) {
+                options.allowOverwrite = true;
+              } else if (etag) {
+                options.allowOverwrite = true;
+                options.ifMatch = etag;
+              } else {
+                options.allowOverwrite = false;
+              }
+
+              await put(key, JSON.stringify(data), options);
+            } catch (e) {
+              if (isConflict(e)) throw conflictErr();
+              throw e;
+            }
+          }"""
+
+          if old not in text:
+              raise SystemExit("ERROR: Original writeJsonBlob function was not found.")
+
+          text = text.replace(old, new, 1)
+
+          old2 = """async function save() { const c = ctx(); await writeJsonBlob(DB_KEY, c.db, c.etag); }"""
+
+          new2 = """async function save(forceOverwrite = false) {
+            const c = ctx();
+            await writeJsonBlob(DB_KEY, c.db, c.etag, forceOverwrite);
+          }"""
+
+          if old2 not in text:
+              raise SystemExit("ERROR: Original save function was not found.")
+
+          text = text.replace(old2, new2, 1)
+
+          old3 = """  db.bookings.push(rec);
+  await save();
+  return rec;"""
+
+          new3 = """  db.bookings.push(rec);
+
+  // Public appointment bookings use an overwrite save so a stale
+  // ETag cannot reject an otherwise valid customer booking.
+  await save(true);
+
+  return rec;"""
+
+          if old3 not in text:
+              raise SystemExit("ERROR: Booking save block was not found.")
+
+          text = text.replace(old3, new3, 1)
+
+          path.write_text(text)
+          print("Booking conflict patch applied successfully.")
+          PY
+
+      - name: Verify patch
+        run: |
+          grep -n -A12 "async function writeJsonBlob" "api/[...path].js"
+          grep -n -A12 "db.bookings.push(rec)" "api/[...path].js"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add api/[...path].js
+          git commit -m "Fix appointment booking save conflict" || echo "No changes to commit"
+          git push
