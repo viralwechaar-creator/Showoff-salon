@@ -31,12 +31,12 @@ async function readJsonBlob(key) {
   if (!r || r.statusCode !== 200) return null;
   return { data: JSON.parse(await new Response(r.stream).text()), etag: r.blob.etag };
 }
-async function writeJsonBlob(key, data, etag) {
+async function writeJsonBlob(key, data, etag, forceOverwrite = false) {
   const { put } = await blob();
   try {
     await put(key, JSON.stringify(data), Object.assign(
       { access: 'private', contentType: 'application/json', addRandomSuffix: false },
-      etag ? { allowOverwrite: true, ifMatch: etag } : { allowOverwrite: false }
+      forceOverwrite ? { allowOverwrite: true } : (etag ? { allowOverwrite: true, ifMatch: etag } : { allowOverwrite: false })
     ));
   } catch (e) { if (isConflict(e)) throw conflictErr(); throw e; }
 }
@@ -58,7 +58,7 @@ async function loadAdmin() {
   }
   throw new Error('Storage unavailable');
 }
-async function save() { const c = ctx(); await writeJsonBlob(DB_KEY, c.db, c.etag); }
+async function save() { const c = ctx(); await writeJsonBlob(DB_KEY, c.db, c.etag, true); }
 
 /* ---------- admin password + sessions (stateless signed cookie) ---------- */
 function hashPw(pw, salt = crypto.randomBytes(16).toString('hex')) {
