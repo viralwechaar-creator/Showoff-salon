@@ -1,0 +1,8 @@
+{
+  "name": "showoff-salon-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Website, booking, admin console and WhatsApp billing for Showoff Salon (Vercel edition)",
+  "dependencies": { "@vercel/blob": "^2.6.1" },
+  "engines": { "node": "22.x" }
+}
