@@ -36,7 +36,7 @@ async function writeJsonBlob(key, data, etag, forceOverwrite = false) {
   try {
     await put(key, JSON.stringify(data), Object.assign(
       { access: 'private', contentType: 'application/json', addRandomSuffix: false },
-      forceOverwrite ? { allowOverwrite: true } : (etag ? { allowOverwrite: true, ifMatch: etag } : { allowOverwrite: false })
+      forceOverwrite ? { allowOverwrite: true } : (forceOverwrite ? { allowOverwrite: true } : (etag ? { allowOverwrite: true, ifMatch: etag } : { allowOverwrite: false }))
     ));
   } catch (e) { if (isConflict(e)) throw conflictErr(); throw e; }
 }
