@@ -1,0 +1,57 @@
+name: Fix Showoff Salon Structure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore project structure
+        run: |
+          set -e
+
+          ZIP=$(find . -maxdepth 1 -type f -name '*.zip' | head -n 1)
+
+          if [ -z "$ZIP" ]; then
+            echo "ERROR: ZIP file not found"
+            exit 1
+          fi
+
+          echo "Using ZIP: $ZIP"
+
+          rm -rf /tmp/showoff
+          mkdir -p /tmp/showoff
+
+          unzip -q "$ZIP" -d /tmp/showoff
+
+          rm -rf api public
+
+          find . -maxdepth 1 -type f \
+            ! -name '*.zip' \
+            ! -name '.gitignore' \
+            -delete
+
+          cp -R /tmp/showoff/api .
+          cp -R /tmp/showoff/public .
+          cp /tmp/showoff/package.json .
+          cp /tmp/showoff/vercel.json .
+          cp /tmp/showoff/README.md .
+
+          echo "Final structure:"
+          find . -maxdepth 3 -type f | sort
+
+      - name: Commit repaired structure
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix Showoff Salon project structure" || echo "No changes to commit"
+          git push
