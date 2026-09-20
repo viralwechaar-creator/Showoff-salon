@@ -62,12 +62,34 @@
 
   const TITLES = { dashboard: 'Today', bookings: 'Bookings', billing: 'Billing', clients: 'Clients', menu: 'Menu and prices', stylists: 'Hairstylists', gallery: 'Gallery', content: 'Website text', settings: 'Settings' };
   const ICONS = { dashboard: 'grid', bookings: 'calendar', billing: 'receipt', clients: 'users', menu: 'list', stylists: 'cut', gallery: 'pics', content: 'doc', settings: 'gear' };
+  const PRIMARY = ['dashboard', 'bookings', 'billing', 'clients'];
+  const SECONDARY = Object.keys(TITLES).filter(k => !PRIMARY.includes(k));
+
   function renderNav() {
     const pending = D.bookings.filter(b => b.status === 'pending').length;
     const items = Object.entries(TITLES);
     $('#rail').replaceChildren(...items.map(([k, t]) => h('button', { type: 'button', title: t, 'aria-label': t, 'aria-current': k === current ? 'page' : null, onclick: () => go(k) }, icon(ICONS[k]))));
     $('#sideNav').replaceChildren(...items.map(([k, t]) => h('button', { type: 'button', 'aria-current': k === current ? 'page' : null, onclick: () => go(k) },
       icon(ICONS[k]), h('span', { class: 'a-nav-label', text: t }), k === 'bookings' && pending ? h('span', { class: 'badge', text: pending }) : null)));
+
+    const inMore = SECONDARY.includes(current);
+    $('#tabbar').replaceChildren(
+      ...PRIMARY.map(k => h('button', { type: 'button', 'aria-current': k === current ? 'page' : null, onclick: () => go(k) },
+        icon(ICONS[k]), h('span', { text: TITLES[k] }), k === 'bookings' && pending ? h('span', { class: 'a-tab-dot' }) : null)),
+      h('button', { type: 'button', 'aria-current': inMore ? 'page' : null, onclick: openMore }, icon('dots'), h('span', { text: 'More' })));
+  }
+
+  function openMore() {
+    const pending = D.bookings.filter(b => b.status === 'pending').length;
+    const d = h('dialog', { class: 'a-dialog' }, h('h2', { text: 'More' }),
+      h('div', { class: 'a-more-list' },
+        SECONDARY.map(k => h('button', { type: 'button', 'aria-current': k === current ? 'page' : null, onclick: () => { d.close(); go(k); } },
+          icon(ICONS[k]), TITLES[k], k === 'bookings' && pending ? h('span', { class: 'badge', text: pending }) : null)),
+        h('div', { class: 'a-more-sep' }),
+        h('a', { href: '/', target: '_blank', rel: 'noopener' }, icon('doc'), 'View website'),
+        h('button', { type: 'button', onclick: () => { d.close(); $('#logout').click(); } }, icon('logout'), 'Sign out')));
+    d.addEventListener('close', () => d.remove());
+    document.body.append(d); d.showModal();
   }
   function go(v) {
     current = v; location.hash = v;

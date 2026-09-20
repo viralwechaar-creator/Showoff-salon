@@ -137,13 +137,13 @@ function makeSeed() {
     },
     content: {
       heroTitle: 'Hair, skin and nails, taken seriously.',
-      heroText: 'A unisex salon in Sardarpura, Jodhpur. Facials, hair colour and treatments, waxing, manicure and pedicure, with clear descriptions and fixed prices.',
+      heroText: 'Facials, hair colour and treatments, waxing, manicure and pedicure, with clear descriptions and fixed prices.',
       servicesText: 'Everything we offer, grouped the way you would ask for it. Choose a group to see its full menu.',
       menuText: 'Swipe or use the arrows to move through the menu. Prices are in rupees.',
       galleryText: 'A look at the salon and our work.',
       stylistsText: 'The people who will look after you.',
       aboutTitle: 'A salon for the whole family.',
-      aboutText: 'Showoff is a unisex salon in Sardarpura, Jodhpur.\nWe offer facials, clean-ups, hair colour, hair treatments, waxing, manicure and pedicure for women and men.\nEvery service on our menu has a plain description and a fixed price, so you know what to expect before you sit down.',
+      aboutText: 'Every treatment on our menu has a plain description and a fixed price, so you know what to expect before you sit down.\nWe keep the studio calm and unhurried, whether you are in for a quick trim or a full spa afternoon.\nBook online in a minute, or call ahead if you would rather speak to someone first.',
       bookText: 'Choose your services, a date and a time. We will confirm your slot after you send the request.'
     },
     menu,

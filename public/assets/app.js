@@ -28,6 +28,11 @@
   navOverlay.addEventListener('click', e => { if (e.target === navOverlay) setMenu(false); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && navOverlay.classList.contains('open')) setMenu(false); });
 
+  const hdr = $('#hdr');
+  const syncHdrScroll = () => hdr.classList.toggle('is-scrolled', scrollY > 8);
+  syncHdrScroll();
+  addEventListener('scroll', syncHdrScroll, { passive: true });
+
   set('navAddress', S.address);
   const navEmail = $('#navEmail');
   if (S.email) { navEmail.href = 'mailto:' + S.email; navEmail.textContent = 'Email us'; }
