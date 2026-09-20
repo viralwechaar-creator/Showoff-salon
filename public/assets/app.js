@@ -225,7 +225,7 @@
         h('div', {}, h('dt', { text: 'Reference' }), h('dd', { text: b.ref })),
         h('div', {}, h('dt', { text: 'Date' }), h('dd', { text: fmtDate(b.date) })),
         h('div', {}, h('dt', { text: 'Time' }), h('dd', { text: fmt12(b.time) })),
-        b.services.length ? h('div', {}, h('dt', { text: 'Services' }), h('dd', { text: b.services.join(', ') })) : null),
+        b.services.length ? h('div', {}, h('dt', { text: 'Services' }), h('dd', { text: b.services.map(s => s.name).join(', ') })) : null),
       h('div', { class: 'actions' },
         S.whatsapp ? h('a', { class: 'btn', href: waLink(S.whatsapp, msg), target: '_blank', rel: 'noopener' }, icon('whatsapp'), 'Message us on WhatsApp') : null,
         h('button', { class: 'btn btn-alt', type: 'button', onclick: () => { form.reset(); picked.clear(); syncPick(); $('#slots').replaceChildren(h('p', { class: 'hint', text: 'Choose a date to see available times.' })); done.hidden = true; form.hidden = false; } }, 'Book another')));

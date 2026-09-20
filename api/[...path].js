@@ -289,6 +289,50 @@ function publicSite() {
   };
 }
 
+function computeSlots(date) {
+  const { db } = ctx();
+  const S = db.settings;
+
+  if (!validDate(date)) fail(400, 'Invalid date.');
+
+  const day = new Date(date + 'T00:00:00Z').getUTCDay();
+
+  if ((S.closedDays || []).includes(day)) {
+    return { closed: true, reason: 'Closed that day.', slots: [] };
+  }
+
+  const [openH, openM] = S.open.split(':').map(Number);
+  const [closeH, closeM] = S.close.split(':').map(Number);
+  const openMin = openH * 60 + openM;
+  const closeMin = closeH * 60 + closeM;
+  const step = S.slotMinutes || 30;
+  const capacity = S.capacity || 1;
+
+  const bookedCounts = {};
+
+  for (const b of db.bookings || []) {
+    if (b.date === date && b.status !== 'cancelled') {
+      bookedCounts[b.time] = (bookedCounts[b.time] || 0) + 1;
+    }
+  }
+
+  const slots = [];
+
+  for (let m = openMin; m < closeMin; m += step) {
+    const time =
+      String(Math.floor(m / 60)).padStart(2, '0') +
+      ':' +
+      String(m % 60).padStart(2, '0');
+
+    slots.push({
+      time,
+      free: (bookedCounts[time] || 0) < capacity
+    });
+  }
+
+  return { closed: false, slots };
+}
+
 function cleanPhone(value) {
   return String(value || '')
     .replace(/[^\d+]/g, '')
@@ -314,16 +358,19 @@ async function makeBooking(body) {
 
   const name = cleanString(body.name, 100);
   const phone = cleanPhone(body.phone);
+  const email = cleanString(body.email, 120);
   const date = cleanString(body.date, 10);
   const time = cleanString(body.time, 5);
-  const serviceId = cleanString(body.serviceId, 100);
-  const stylistId = cleanString(body.stylistId, 100);
+  const note = cleanString(body.note, 300);
+  const serviceIds = Array.isArray(body.services)
+    ? body.services.map(x => cleanString(x, 100)).filter(Boolean)
+    : [];
 
   if (!name) fail(400, 'Name is required.');
   if (!phone) fail(400, 'Phone number is required.');
   if (!validDate(date)) fail(400, 'Invalid date.');
   if (!validTime(time)) fail(400, 'Invalid time.');
-  if (!serviceId) fail(400, 'Service is required.');
+  if (!serviceIds.length) fail(400, 'Choose at least one service.');
 
   if (!db.bookings) db.bookings = [];
 
@@ -342,29 +389,33 @@ async function makeBooking(body) {
     );
   }
 
-  const service = (db.menu || []).find(
-    x => String(x.id) === serviceId
+  const allItems = (db.menu || []).flatMap(c => c.items || []);
+
+  const services = serviceIds
+    .map(id => allItems.find(i => String(i.id) === id))
+    .filter(Boolean)
+    .map(i => ({ id: i.id, name: i.name, price: i.price }));
+
+  if (!services.length) fail(400, 'Selected services were not found.');
+
+  const price = services.reduce(
+    (sum, s) => sum + (Number(s.price) || 0),
+    0
   );
 
-  if (!service) fail(400, 'Selected service was not found.');
-
-  const stylist =
-    stylistId &&
-    (db.stylists || []).find(
-      x => String(x.id) === stylistId
-    );
+  const id = crypto.randomUUID();
 
   const rec = {
-    id: crypto.randomUUID(),
+    id,
+    ref: id.replace(/-/g, '').slice(0, 8).toUpperCase(),
     name,
     phone,
+    email,
     date,
     time,
-    serviceId,
-    serviceName: service.name,
-    price: service.price,
-    stylistId: stylist ? stylist.id : null,
-    stylistName: stylist ? stylist.name : null,
+    note,
+    services,
+    price,
     status: 'pending',
     createdAt: new Date().toISOString()
   };
@@ -385,6 +436,8 @@ async function handle(req, res) {
     pathname = pathname.slice(4) || '/';
   }
 
+  const query = new URL(req.url || '/', 'http://x').searchParams;
+
   const body =
     method === 'POST' ||
     method === 'PUT' ||
@@ -394,6 +447,10 @@ async function handle(req, res) {
 
   if (method === 'GET' && pathname === '/site') {
     return json(res, 200, publicSite());
+  }
+
+  if (method === 'GET' && pathname === '/slots') {
+    return json(res, 200, computeSlots(String(query.get('date') || '')));
   }
 
   if (method === 'GET' && pathname === '/admin/me') {
