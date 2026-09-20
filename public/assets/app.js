@@ -84,14 +84,17 @@
   const who = g => g === 'female' ? 'Women' : g === 'male' ? 'Men' : 'Women and men';
   const minPrice = c => Math.min(...c.items.flatMap(i => [i.price, i.price2]).filter(v => v != null));
 
-  /* ---------- services list ---------- */
+  /* ---------- services grid ---------- */
   function renderServices() {
-    $('#svcList').replaceChildren(...site.menu.map(c => h('li', {},
-      h('a', { class: 'svc', href: '/menu?cat=' + encodeURIComponent(c.id), 'aria-label': `${c.name}, ${who(c.gender)}. See full menu` },
-        h('span', { class: 'svc-name', text: c.name }),
-        h('span', { class: 'svc-who', text: who(c.gender) }),
-        h('span', { class: 'svc-count', text: c.items.length + (c.items.length === 1 ? ' treatment' : ' treatments') }),
-        h('span', { class: 'svc-from', text: 'from ' + inr(minPrice(c)) })))));
+    $('#svcList').replaceChildren(...site.menu.map((c, i) => h('a', {
+      class: 'svc-card', href: '/menu?cat=' + encodeURIComponent(c.id), 'aria-label': `${c.name}, ${who(c.gender)}. See full menu`
+    },
+      h('span', { class: 'svc-card-top' },
+        h('span', { class: 'svc-card-no', text: String(i + 1).padStart(2, '0') }),
+        h('span', { class: 'svc-card-arrow' }, icon('arrow-r'))),
+      h('span', { class: 'svc-card-name', text: c.name }),
+      h('span', { class: 'svc-card-meta', text: who(c.gender) + ' · ' + c.items.length + (c.items.length === 1 ? ' treatment' : ' treatments') }),
+      h('span', { class: 'svc-card-price', text: 'from ' + inr(minPrice(c)) }))));
   }
 
   /* ---------- gallery + lightbox ---------- */
@@ -152,6 +155,20 @@
     $('#pickChips').replaceChildren(...[...picked].map(id => h('span', { class: 'chip', text: idxItems.get(id).name })));
   }
 
+  /* ---------- picks carried over from the menu page ---------- */
+  (function () {
+    const PICK_KEY = 'ss_menu_picks';
+    let ids;
+    try { ids = JSON.parse(sessionStorage.getItem(PICK_KEY) || 'null'); } catch { ids = null; }
+    if (!ids || !ids.length) return;
+    try { sessionStorage.removeItem(PICK_KEY); } catch {}
+    ids.forEach(id => { if (idxItems.has(id)) picked.add(id); });
+    if (!picked.size) return;
+    $$('#pickList input[type=checkbox]').forEach(cb => { cb.checked = picked.has(cb.value); });
+    syncPick();
+    requestAnimationFrame(() => $('#book').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+  })();
+
   dateEl.addEventListener('change', loadSlots);
   async function loadSlots() {
     const box = $('#slots');
@@ -209,9 +226,9 @@
 
   /* ---------- scroll reveal + hero parallax ---------- */
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const targets = $$('.sec-head, .svc-list li, .gal > *, .team .person, .about-body, .panel, .facts > div');
+    const targets = $$('.sec-head, .svc-card, .gal > *, .team .person, .about-body, .panel, .facts > div');
     targets.forEach(el => el.classList.add('sr'));
-    $$('.svc-list li').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 40, 400) + 'ms'; });
+    $$('.svc-card').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 40, 400) + 'ms'; });
     $$('.gal > *').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 300) + 'ms'; });
     $$('.team .person').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 80, 320) + 'ms'; });
     $$('.facts > div').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 240) + 'ms'; });

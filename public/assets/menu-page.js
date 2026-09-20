@@ -61,6 +61,28 @@
   const who = g => g === 'female' ? 'Women' : g === 'male' ? 'Men' : 'Women and men';
   const star = () => h('span', {}, icon('star'), h('span', { class: 'vh', text: 'Most popular' }));
 
+  /* ---------- pick services + continue to book ---------- */
+  const PICK_KEY = 'ss_menu_picks';
+  const picked = new Set();
+  const pickCount = h('span', { class: 'menu-pickbar-count' });
+  const pickLink = h('a', { class: 'btn btn-pill', href: '/#book', onclick: () => { try { sessionStorage.setItem(PICK_KEY, JSON.stringify([...picked])); } catch {} } }, 'Continue to book');
+  const pickBar = h('div', { class: 'menu-pickbar', hidden: true }, pickCount, pickLink);
+  document.body.append(pickBar);
+  function syncPickBar() {
+    pickBar.hidden = picked.size === 0;
+    pickCount.textContent = picked.size + (picked.size === 1 ? ' service selected' : ' services selected');
+  }
+  const pickBtn = it => h('button', {
+    type: 'button', class: 'item-pick', 'aria-pressed': picked.has(it.id),
+    onclick: e => {
+      if (picked.has(it.id)) picked.delete(it.id); else picked.add(it.id);
+      const on = picked.has(it.id);
+      e.currentTarget.setAttribute('aria-pressed', on);
+      e.currentTarget.textContent = on ? 'Added' : 'Add';
+      syncPickBar();
+    }
+  }, picked.has(it.id) ? 'Added' : 'Add');
+
   /* ---------- menu slider ---------- */
   let filter = 'all', idx = 0, cats = [];
   const slider = $('#slider'), tabs = $('#menuTabs'), prev = $('#prevSlide'), next = $('#nextSlide');
@@ -86,7 +108,8 @@
             it.desc ? h('div', { class: 'item-desc', text: it.desc }) : null,
             h('div', { class: 'prices' },
               h('span', { class: 'price', text: inr(it.price) }),
-              two ? h('span', { class: 'price' + (it.price2 == null ? ' none' : ''), text: it.price2 == null ? 'n/a' : inr(it.price2) }) : null)))));
+              two ? h('span', { class: 'price' + (it.price2 == null ? ' none' : ''), text: it.price2 == null ? 'n/a' : inr(it.price2) }) : null),
+            pickBtn(it)))));
     }));
     $$('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.g === filter));
     slider.scrollLeft = idx * slider.clientWidth;

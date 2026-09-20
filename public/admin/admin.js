@@ -421,10 +421,38 @@
           S.heroLogo ? [' ', btn('Remove logo', () => { S.heroLogo = ''; drawLogo(); }, 'btn-sm btn-alt')] : null));
     }
     drawLogo();
+
+    const qrUrl = location.origin + '/menu';
+    const qrPic = h('div', { class: 'pic', style: 'aspect-ratio:1;background:#fff' });
+    let qrCanvas = null;
+    function drawQr() {
+      const qr = qrcode(0, 'M');
+      qr.addData(qrUrl);
+      qr.make();
+      const count = qr.getModuleCount(), margin = 2;
+      const cell = Math.max(6, Math.round(480 / (count + margin * 2)));
+      const size = (count + margin * 2) * cell;
+      qrCanvas = h('canvas', { width: size, height: size, style: 'width:100%;height:100%' });
+      const ctx = qrCanvas.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+      ctx.fillStyle = '#391D21';
+      for (let r = 0; r < count; r++) for (let c = 0; c < count; c++) if (qr.isDark(r, c)) ctx.fillRect((c + margin) * cell, (r + margin) * cell, cell, cell);
+      qrPic.replaceChildren(qrCanvas);
+    }
+    drawQr();
+
     view().replaceChildren(h('div', { style: 'max-width:760px' },
       h('h2', { class: 'a-h2', text: 'Branding' }),
       h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Shown in the home page hero in place of the salon photo. Leave empty to use the photo.' }),
       logoBox,
+      h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Share your menu' }),
+      h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Print this at the counter or entrance. Scanning it opens your treatment menu, where clients can browse and pick services before booking.' }),
+      h('div', { class: 'a-card', style: 'max-width:260px;text-align:center' },
+        qrPic,
+        h('p', { class: 'a-note', style: 'word-break:break-all', text: qrUrl }),
+        h('div', { class: 'a-row-actions', style: 'justify-content:center;margin-top:10px' },
+          btn('Copy link', async () => { try { await navigator.clipboard.writeText(qrUrl); toast('Link copied'); } catch { toast(qrUrl); } }, 'btn-sm btn-alt'),
+          btn('Download QR', () => { const a = document.createElement('a'); a.href = qrCanvas.toDataURL('image/png'); a.download = 'showoff-salon-menu-qr.png'; a.click(); }, 'btn-sm btn-alt'))),
       h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Salon details' }),
       h('div', { class: 'a-grid' }, fld('Salon name', inp(S, 'salonName', { id: id('salonName') }), id('salonName')), fld('Phone', inp(S, 'phone', { id: id('phone'), type: 'tel' }), id('phone')),
         fld('WhatsApp number (for the Book form)', inp(S, 'whatsapp', { id: id('whatsapp'), type: 'tel', placeholder: '10 digit number' }), id('whatsapp')), fld('Email', inp(S, 'email', { id: id('email') }), id('email')),
