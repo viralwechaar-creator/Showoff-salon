@@ -15,12 +15,28 @@
   set('brandName', S.salonName);
   document.title = 'Treatment menu, ' + S.salonName;
   const menuBtn = $('#menuBtn'), navOverlay = $('#navOverlay'), nav = $('#nav');
+  let navScrollY = 0;
   const setMenu = open => {
     menuBtn.setAttribute('aria-expanded', open);
     menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     navOverlay.classList.toggle('open', open);
     navOverlay.setAttribute('aria-hidden', String(!open));
     document.documentElement.classList.toggle('nav-open', open);
+    /* html{overflow:hidden} alone still lets iOS Safari rubber-band the page behind
+       a fixed overlay, so pin the body in place too while the menu is open. */
+    if (open) {
+      navScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = -navScrollY + 'px';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    } else {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo({ top: navScrollY, behavior: 'instant' });
+    }
   };
   setMenu(false);
   menuBtn.addEventListener('click', () => setMenu(!navOverlay.classList.contains('open')));

@@ -1,10 +1,10 @@
 body.adm { background: var(--tint); overflow-x: hidden; }
-.a-login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--tint); }
+.a-login { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: var(--tint); }
 .a-login-card { width: min(400px, 100%); background: #fff; padding: 40px; border-radius: 20px; display: grid; gap: 20px; justify-items: start; }
 .a-login-card h1 { font-size: 40px; }
 .a-login-card form { width: 100%; }
 
-.a-app { display: grid; grid-template-columns: 76px 240px 1fr; gap: 20px; min-height: 100vh; align-items: start; padding: 20px; box-sizing: border-box; }
+.a-app { display: grid; grid-template-columns: 76px 240px 1fr; gap: 20px; min-height: 100vh; min-height: 100dvh; align-items: start; padding: 20px; box-sizing: border-box; }
 
 /* floating icon rail */
 .a-rail { position: sticky; top: 20px; background: var(--plum); border-radius: 22px; padding: 14px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: var(--shadow-md); }
@@ -37,7 +37,7 @@ body.adm { background: var(--tint); overflow-x: hidden; }
 .a-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; position: relative; }
 .a-top h1 { font-size: clamp(30px, 3.4vw, 46px); }
 .a-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.a-main .btn { padding: 12px 20px; font-size: 15px; }
+.a-main .btn { padding: 12px 20px; font-size: 15px; min-height: 44px; }
 .a-main .btn-sm { padding: 7px 12px; font-size: 14px; }
 .btn[disabled] { opacity: .45; pointer-events: none; }
 .btn-danger { color: #A3241F; border-color: #A3241F; background: #fff; }
@@ -102,7 +102,7 @@ details.a-card[open] > summary { margin-bottom: 16px; }
 .a-totals div { display: flex; justify-content: space-between; padding: 5px 0; }
 .a-totals .grand { border-top: 1px solid var(--plum); padding-top: 12px; margin-top: 6px; font-size: 26px; font-weight: 500; }
 
-dialog.a-dialog { border: 0; border-radius: 18px; padding: 28px; width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; }
+dialog.a-dialog { border: 0; border-radius: 18px; padding: 28px; width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow: auto; }
 dialog.a-dialog::backdrop { background: rgba(57,29,33,.6); }
 dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
 .a-dialog-close { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border-radius: 999px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; transition: background .2s var(--ease), color .2s var(--ease); }
@@ -124,16 +124,22 @@ dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
 .a-more-list .badge { margin-left: auto; background: var(--gold); color: var(--plum); font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 99px; }
 .a-more-sep { height: 1px; background: var(--line); margin: 10px -8px; }
 
+/* tablet tier: drop the icon rail but keep the labelled sidebar, so an iPad still
+   gets real navigation instead of jumping straight to the phone bottom bar */
 @media (max-width: 1000px) {
-  .a-app { grid-template-columns: 1fr; padding: 14px 12px calc(86px + env(safe-area-inset-bottom)); gap: 10px; }
-  .a-side, .a-main { min-width: 0; }
-  .a-rail, .a-side { display: none; }
-  .a-main { padding: 0 2px; }
+  .a-app { grid-template-columns: minmax(180px, 220px) 1fr; gap: 14px; padding: 16px; }
+  .a-rail { display: none; }
   .a-cols { grid-template-columns: 1fr; gap: 32px; }
   .a-item { grid-template-columns: 1fr 1fr; }
   .a-item .desc { grid-column: 1 / -1; }
   .seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
   .seg::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 700px) {
+  .a-app { grid-template-columns: 1fr; padding: 14px 12px calc(86px + env(safe-area-inset-bottom)); gap: 10px; }
+  .a-side, .a-main { min-width: 0; }
+  .a-side { display: none; }
+  .a-main { padding: 0 2px; }
 
   .a-tabbar {
     display: flex; position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom));
