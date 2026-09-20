@@ -60,8 +60,8 @@
     go(location.hash.slice(1) in VIEWS ? location.hash.slice(1) : 'dashboard');
   }
 
-  const TITLES = { dashboard: 'Today', bookings: 'Bookings', billing: 'Billing', clients: 'Clients', menu: 'Menu and prices', stylists: 'Hairstylists', gallery: 'Gallery', content: 'Website text', settings: 'Settings' };
-  const ICONS = { dashboard: 'grid', bookings: 'calendar', billing: 'receipt', clients: 'users', menu: 'list', stylists: 'cut', gallery: 'pics', content: 'doc', settings: 'gear' };
+  const TITLES = { dashboard: 'Today', bookings: 'Bookings', billing: 'Billing', clients: 'Clients', menu: 'Menu and prices', stylists: 'Hairstylists', gallery: 'Gallery', content: 'Website text', settings: 'Settings', expenses: 'Expenses', analytics: 'Analytics' };
+  const ICONS = { dashboard: 'grid', bookings: 'calendar', billing: 'receipt', clients: 'users', menu: 'list', stylists: 'cut', gallery: 'pics', content: 'doc', settings: 'gear', expenses: 'wallet', analytics: 'chart' };
   const PRIMARY = ['dashboard', 'bookings', 'billing', 'clients'];
   const SECONDARY = Object.keys(TITLES).filter(k => !PRIMARY.includes(k));
 
@@ -293,6 +293,78 @@
       { label: 'Done', cls: 'btn-alt', value: 'done' }].filter(Boolean));
   }
 
+  /* ---------- expenses ---------- */
+  const EXPENSE_CATS = { rent: 'Rent', salary: 'Salary', bills: 'Bills', purchase: 'Product purchase', other: 'Other' };
+  function expenseTable(list) {
+    if (!list.length) return emptyNote('No expenses logged yet.', 'receipt');
+    const total = list.reduce((a, e) => a + e.amount, 0);
+    const table = h('table', { class: 'a-table' },
+      h('thead', {}, h('tr', {}, ['Date', 'Category', 'Note', 'Amount', ''].map(t => h('th', { text: t })))),
+      h('tbody', {}, list.map(e => h('tr', {},
+        h('td', { text: fmtDate(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) }),
+        h('td', { text: EXPENSE_CATS[e.category] || 'Other' }),
+        h('td', { text: e.note || '' }),
+        h('td', { class: 'r', text: inr(e.amount) }),
+        h('td', {}, btn('Delete', async () => { if (await confirmBox('Delete this expense of ' + inr(e.amount) + '?', 'Delete')) { try { await api('DELETE', '/api/admin/expenses/' + e.id); await load(); rerender(); toast('Expense deleted'); } catch (ex) { fail(ex); } } }, 'btn-sm btn-danger'))))));
+    return h('div', {}, h('div', { class: 'a-scroll' }, table),
+      h('p', { class: 'a-note', style: 'text-align:right;margin-top:8px', text: 'Total: ' + inr(total) }));
+  }
+  function addExpenseDialog() {
+    const F = { date: D.today, category: 'other', note: '', amount: null };
+    const body = h('div', {},
+      fld('Date', h('input', { type: 'date', id: 'exDate', value: F.date, max: D.today, onchange: e => { F.date = e.target.value; } }), 'exDate'),
+      fld('Category', h('select', { id: 'exCat', onchange: e => { F.category = e.target.value; } }, Object.entries(EXPENSE_CATS).map(([k, t]) => h('option', { value: k, selected: k === F.category, text: t }))), 'exCat'),
+      fld('Note (optional)', inp(F, 'note', { id: 'exNote', placeholder: 'What was this for?' }), 'exNote'),
+      fld('Amount', num(F, 'amount', { id: 'exAmt', min: 0 }), 'exAmt'));
+    modal('Add expense', body, [{ label: 'Cancel', cls: 'btn-alt', value: 'no' }, {
+      label: 'Save expense', fn: async () => {
+        if (!F.amount || F.amount <= 0) { toast('Enter an amount', true); return false; }
+        try { await api('POST', '/api/admin/expenses', F); await load(); rerender(); toast('Expense added'); } catch (ex) { fail(ex); return false; }
+      }
+    }]);
+  }
+  function viewExpenses() {
+    setActions(btn('Add expense', addExpenseDialog));
+    const t = D.today.slice(0, 7);
+    const all = (D.expenses || []).slice().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+    const monthTotal = all.filter(e => e.date.startsWith(t)).reduce((a, e) => a + e.amount, 0);
+    const allTotal = all.reduce((a, e) => a + e.amount, 0);
+    view().replaceChildren(
+      h('div', { class: 'a-stats' }, [[inr(monthTotal), 'Spent this month'], [inr(allTotal), 'Spent all time'], [all.length, 'Expenses logged']].map(([n, l]) => h('div', { class: 'a-stat' }, h('b', { text: n }), h('span', { text: l })))),
+      h('div', { class: 'a-section' }, expenseTable(all)));
+  }
+
+  /* ---------- analytics ---------- */
+  function serviceStats() {
+    const stats = new Map();
+    for (const inv of D.invoices) {
+      if (inv.void) continue;
+      for (const it of inv.items) {
+        const cur = stats.get(it.name) || { name: it.name, qty: 0, revenue: 0 };
+        cur.qty += it.qty; cur.revenue += it.qty * it.price;
+        stats.set(it.name, cur);
+      }
+    }
+    return [...stats.values()].sort((a, b) => b.qty - a.qty);
+  }
+  function barList(rows) {
+    if (!rows.length) return emptyNote('Nothing billed yet. Analytics appear once you create invoices.', 'sparkle');
+    const max = Math.max(...rows.map(r => r.qty), 1);
+    return h('div', {}, rows.map(r => h('div', { class: 'a-bar-item' },
+      h('div', { class: 'a-bar-top' }, h('span', { class: 'a-bar-name', text: r.name }), h('span', { class: 'a-bar-meta', text: r.qty + (r.qty === 1 ? ' time' : ' times') + '  ' + inr(r.revenue) })),
+      h('div', { class: 'a-bar-track' }, h('div', { class: 'a-bar-fill', style: 'width:' + Math.round(r.qty / max * 100) + '%' })))));
+  }
+  function viewAnalytics() {
+    const t = D.today.slice(0, 7);
+    const revenue = D.invoices.filter(i => !i.void && i.date.startsWith(t)).reduce((a, i) => a + i.total, 0);
+    const spent = (D.expenses || []).filter(e => e.date.startsWith(t)).reduce((a, e) => a + e.amount, 0);
+    view().replaceChildren(
+      h('div', { class: 'a-stats' }, [[inr(revenue), 'Billed this month'], [inr(spent), 'Spent this month'], [inr(revenue - spent), 'Net this month']].map(([n, l]) => h('div', { class: 'a-stat' }, h('b', { text: n }), h('span', { text: l })))),
+      h('div', { class: 'a-section' }, h('h2', { class: 'a-h2', text: 'Most used services' }),
+        h('p', { class: 'a-note', style: 'margin:0 0 16px', text: 'Ranked by how many times each service has been billed, all time.' }),
+        barList(serviceStats())));
+  }
+
   /* ---------- clients ---------- */
   function viewClients() {
     const q = h('input', { class: 'a-search', type: 'search', placeholder: 'Search by name or phone', 'aria-label': 'Search clients', oninput: draw }), box = h('div', {});
@@ -474,6 +546,6 @@
       sticky(btn('Save settings', async () => { if (await saveSection('settings', S)) await load(); })));
   }
 
-  const VIEWS = { dashboard: viewDashboard, bookings: viewBookings, billing: viewBilling, clients: viewClients, menu: viewMenu, stylists: viewStylists, gallery: viewGallery, content: viewContent, settings: viewSettings };
+  const VIEWS = { dashboard: viewDashboard, bookings: viewBookings, billing: viewBilling, clients: viewClients, menu: viewMenu, stylists: viewStylists, gallery: viewGallery, content: viewContent, settings: viewSettings, expenses: viewExpenses, analytics: viewAnalytics };
   boot();
 })();

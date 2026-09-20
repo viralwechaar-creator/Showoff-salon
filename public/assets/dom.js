@@ -36,7 +36,7 @@ window.icon = function icon(id, cls) {
 
 window.doodle = (id, cls) => icon(id, 'doodle ' + (cls || ''));
 
-window.inr = n => '\u20B9' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+window.inr = n => { const v = Number(n || 0); return (v < 0 ? '-\u20B9' : '\u20B9') + Math.abs(v).toLocaleString('en-IN', { maximumFractionDigits: 2 }); };
 
 window.fmt12 = t => {
   const [H, M] = t.split(':').map(Number);

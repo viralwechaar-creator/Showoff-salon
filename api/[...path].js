@@ -501,6 +501,33 @@ async function makeInvoice(body) {
   return inv;
 }
 
+const EXPENSE_CATEGORIES = ['rent', 'salary', 'bills', 'purchase', 'other'];
+
+async function makeExpense(body) {
+  const { db } = ctx();
+
+  const amount = Math.round((Number(body.amount) || 0) * 100) / 100;
+
+  if (amount <= 0) fail(400, 'Enter an amount greater than zero.');
+
+  if (!db.expenses) db.expenses = [];
+
+  const exp = {
+    id: crypto.randomUUID(),
+    date: validDate(body.date) ? cleanString(body.date, 10) : todayStr(),
+    category: EXPENSE_CATEGORIES.includes(body.category) ? body.category : 'other',
+    note: cleanString(body.note, 200),
+    amount,
+    createdAt: new Date().toISOString()
+  };
+
+  db.expenses.push(exp);
+
+  await save();
+
+  return exp;
+}
+
 async function handle(req, res) {
   const method = String(req.method || 'GET').toUpperCase();
 
@@ -619,6 +646,7 @@ async function handle(req, res) {
       gallery: db.gallery || [],
       bookings: db.bookings || [],
       invoices: db.invoices || [],
+      expenses: db.expenses || [],
       clients: clientsList(),
       today: todayStr()
     });
@@ -850,6 +878,99 @@ async function handle(req, res) {
     }
 
     invoice.void = true;
+
+    await save();
+
+    return json(res, 200, {
+      ok: true
+    });
+  }
+
+  if (
+    method === 'POST' &&
+    pathname === '/admin/expenses'
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const expense = await makeExpense(body);
+
+    return json(res, 201, {
+      ok: true,
+      expense
+    });
+  }
+
+  if (
+    method === 'PATCH' &&
+    pathname.startsWith('/admin/expenses/')
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const id = decodeURIComponent(
+      pathname.slice('/admin/expenses/'.length)
+    );
+
+    const expense = (ctx().db.expenses || []).find(
+      x => String(x.id) === id
+    );
+
+    if (!expense) {
+      fail(404, 'Expense not found.');
+    }
+
+    if (body.date !== undefined) {
+      expense.date = validDate(body.date) ? cleanString(body.date, 10) : expense.date;
+    }
+
+    if (body.category !== undefined) {
+      expense.category = EXPENSE_CATEGORIES.includes(body.category) ? body.category : expense.category;
+    }
+
+    if (body.note !== undefined) {
+      expense.note = cleanString(body.note, 200);
+    }
+
+    if (body.amount !== undefined) {
+      const amount = Math.round((Number(body.amount) || 0) * 100) / 100;
+
+      if (amount <= 0) fail(400, 'Enter an amount greater than zero.');
+
+      expense.amount = amount;
+    }
+
+    await save();
+
+    return json(res, 200, {
+      ok: true,
+      expense
+    });
+  }
+
+  if (
+    method === 'DELETE' &&
+    pathname.startsWith('/admin/expenses/')
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const id = decodeURIComponent(
+      pathname.slice('/admin/expenses/'.length)
+    );
+
+    const before = ctx().db.expenses || [];
+
+    ctx().db.expenses = before.filter(
+      x => String(x.id) !== id
+    );
+
+    if (ctx().db.expenses.length === before.length) {
+      fail(404, 'Expense not found.');
+    }
 
     await save();
 

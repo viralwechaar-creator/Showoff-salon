@@ -114,6 +114,15 @@ dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
 .a-toast.err { background: #A3241F; }
 .a-note { font-size: 14px; color: var(--muted); margin-top: 6px; }
 
+/* analytics: ranked bars */
+.a-bar-item { margin-bottom: 16px; }
+.a-bar-item:last-child { margin-bottom: 0; }
+.a-bar-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.a-bar-name { font-weight: 500; }
+.a-bar-meta { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.a-bar-track { height: 8px; border-radius: 99px; background: var(--tint); overflow: hidden; }
+.a-bar-fill { height: 100%; background: var(--plum); border-radius: 99px; }
+
 /* mobile bottom tab bar */
 .a-tabbar { display: none; }
 .a-more-list { display: grid; gap: 2px; margin: 4px -8px 0; }

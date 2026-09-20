@@ -155,6 +155,7 @@ function makeSeed() {
     gallery: [],
     bookings: [],
     invoices: [],
+    expenses: [],
     counters: { booking: 0, invoice: 0 }
   };
 }
