@@ -398,7 +398,7 @@
     drawLogo();
     view().replaceChildren(h('div', { style: 'max-width:760px' },
       h('h2', { class: 'a-h2', text: 'Branding' }),
-      h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Shown as the large mark in the home page hero. Leave empty to use the default mark.' }),
+      h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Shown in the home page hero in place of the salon photo. Leave empty to use the photo.' }),
       logoBox,
       h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Salon details' }),
       h('div', { class: 'a-grid' }, fld('Salon name', inp(S, 'salonName', { id: id('salonName') }), id('salonName')), fld('Phone', inp(S, 'phone', { id: id('phone'), type: 'tel' }), id('phone')),

@@ -45,9 +45,11 @@
   const heroMedia = $('#heroMedia');
   if (site.gallery && site.gallery.length) {
     heroMedia.replaceChildren(h('img', { src: site.gallery[0].src, alt: '' }));
-  } else {
+  } else if (S.heroLogo) {
     heroMedia.replaceChildren(h('div', { class: 'hero-media-fallback' },
-      h('img', { src: S.heroLogo || '/assets/logo-cream.png', alt: '', width: 900, height: 900 })));
+      h('img', { src: S.heroLogo, alt: '', width: 900, height: 900 })));
+  } else {
+    heroMedia.replaceChildren(h('img', { src: '/assets/hero-photo.jpg', alt: '' }));
   }
 
   const heroTel = $('#heroTel');
