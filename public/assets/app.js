@@ -25,6 +25,7 @@
   set('heroText', C.heroText);
   const mark = $('.hero-mark');
   mark.append(doodle('sparkle', 'gold hero-d1'), doodle('scissors', 'gold hero-d2'));
+  if (S.heroLogo) $('.disc img').src = S.heroLogo;
 
   const closed = (S.closedDays || []).map(d => DAYS[d]);
   const hoursText = fmt12(S.open) + ' to ' + fmt12(S.close);

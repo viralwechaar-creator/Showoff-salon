@@ -382,8 +382,25 @@
     const S = JSON.parse(JSON.stringify(D.settings)), P = { current: '', next: '' };
     const id = k => 's' + k;
     const days = h('div', { style: 'display:flex;gap:16px;flex-wrap:wrap' }, DAYS.map((d, i) => h('label', { class: 'a-check' }, h('input', { type: 'checkbox', checked: S.closedDays.includes(i), onchange: e => { S.closedDays = e.target.checked ? [...S.closedDays, i] : S.closedDays.filter(x => x !== i); } }), d)));
+    const logoBox = h('div', { class: 'a-card', style: 'max-width:220px' });
+    function drawLogo() {
+      const file = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'vh', id: 'sHeroLogo', onchange: async e => {
+        const f = e.target.files[0]; if (!f) return;
+        try { S.heroLogo = await uploadFile(f); drawLogo(); } catch (ex) { fail(ex); }
+      } });
+      logoBox.replaceChildren(
+        h('div', { class: 'pic', style: 'aspect-ratio:1' }, S.heroLogo ? h('img', { src: S.heroLogo, alt: '' }) : doodle('sparkle')),
+        file,
+        h('div', { style: 'margin-top:8px' },
+          h('label', { class: 'btn btn-sm btn-alt', for: 'sHeroLogo', tabindex: 0, onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } } }, S.heroLogo ? 'Change logo' : 'Upload logo'),
+          S.heroLogo ? [' ', btn('Remove logo', () => { S.heroLogo = ''; drawLogo(); }, 'btn-sm btn-alt')] : null));
+    }
+    drawLogo();
     view().replaceChildren(h('div', { style: 'max-width:760px' },
-      h('h2', { class: 'a-h2', text: 'Salon details' }),
+      h('h2', { class: 'a-h2', text: 'Branding' }),
+      h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Shown as the large mark in the home page hero. Leave empty to use the default mark.' }),
+      logoBox,
+      h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Salon details' }),
       h('div', { class: 'a-grid' }, fld('Salon name', inp(S, 'salonName', { id: id('salonName') }), id('salonName')), fld('Phone', inp(S, 'phone', { id: id('phone'), type: 'tel' }), id('phone')),
         fld('WhatsApp number (for the Book form)', inp(S, 'whatsapp', { id: id('whatsapp'), type: 'tel', placeholder: '10 digit number' }), id('whatsapp')), fld('Email', inp(S, 'email', { id: id('email') }), id('email')),
         fld('Instagram handle', inp(S, 'instagram', { id: id('instagram') }), id('instagram')), fld('Google Maps link', inp(S, 'mapUrl', { id: id('mapUrl'), placeholder: 'https://maps.app.goo.gl/...' }), id('mapUrl'))),
