@@ -156,7 +156,7 @@ async function readJsonBlob(key) {
 
   return {
     data: JSON.parse(text),
-    etag: r.etag
+    etag: (r.blob && r.blob.etag) || r.etag
   };
 }
 
