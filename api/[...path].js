@@ -282,7 +282,7 @@ function publicSite() {
   return {
     settings: db.settings,
     menu: db.menu,
-    categories: db.categories,
+    content: db.content,
     stylists: db.stylists || [],
     gallery: db.gallery || [],
     today: new Date().toISOString().slice(0, 10)
@@ -483,7 +483,7 @@ async function handle(req, res) {
     return json(res, 200, {
       settings: db.settings,
       menu: db.menu,
-      categories: db.categories,
+      content: db.content,
       stylists: db.stylists || [],
       gallery: db.gallery || [],
       bookings: db.bookings || []
@@ -530,17 +530,17 @@ async function handle(req, res) {
 
   if (
     method === 'PUT' &&
-    pathname === '/admin/categories'
+    pathname === '/admin/content'
   ) {
     if (!isAdmin(req)) {
       fail(401, 'Unauthorized.');
     }
 
-    if (!Array.isArray(body)) {
-      fail(400, 'Categories must be an array.');
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      fail(400, 'Content must be an object.');
     }
 
-    ctx().db.categories = body;
+    ctx().db.content = body;
 
     await save();
 
