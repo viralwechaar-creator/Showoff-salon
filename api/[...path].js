@@ -69,6 +69,37 @@ function sign(value) {
     .digest('base64url');
 }
 
+/* scrypt is a slow, salted KDF - much harder to brute-force offline than a
+   bare hash. The "scrypt$" prefix lets verifyPassword() also accept the
+   old unsalted sha256 hashes still stored from before this existed, so a
+   successful login on a legacy hash can upgrade it in place (see the
+   /admin/login handler) without ever locking anyone out. */
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `scrypt$${salt}$${hash}`;
+}
+
+function verifyPassword(password, stored) {
+  if (!stored) return false;
+
+  if (stored.startsWith('scrypt$')) {
+    const parts = stored.split('$');
+    if (parts.length !== 3) return false;
+
+    const [, salt, hash] = parts;
+    const check = crypto.scryptSync(password, salt, 64).toString('hex');
+    const a = Buffer.from(check, 'hex');
+    const b = Buffer.from(hash, 'hex');
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
+  }
+
+  const legacy = crypto.createHash('sha256').update(password).digest('hex');
+  const a = Buffer.from(legacy);
+  const b = Buffer.from(stored);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 function makeSession(admin) {
   const payload = Buffer.from(JSON.stringify({
     admin: !!admin,
@@ -174,13 +205,8 @@ async function loadAdmin() {
     fail(500, 'Admin password is not configured.');
   }
 
-  const hash = crypto
-    .createHash('sha256')
-    .update(password)
-    .digest('hex');
-
   const data = {
-    passwordHash: hash
+    passwordHash: hashPassword(password)
   };
 
   await writeJsonBlob(ADMIN_KEY, data);
@@ -308,6 +334,12 @@ function validTime(value) {
 
 async function makeBooking(body, isAdminBooking = false) {
   const { db } = ctx();
+
+  /* honeypot: a real visitor never sees or fills the "website" field
+     (it's visually hidden), so anything in it means an automated bot. */
+  if (cleanString(body.website, 200)) {
+    fail(400, 'Could not submit the booking.');
+  }
 
   const name = cleanString(body.name, 100);
   const phone = cleanPhone(body.phone);
@@ -572,18 +604,35 @@ async function handle(req, res) {
 
     const admin = ctx().admin;
 
-    const hash = crypto
-      .createHash('sha256')
-      .update(password)
-      .digest('hex');
+    if (admin.lockedUntil && Date.now() < admin.lockedUntil) {
+      const mins = Math.ceil((admin.lockedUntil - Date.now()) / 60000);
 
-    if (
-      !admin ||
-      !admin.passwordHash ||
-      hash !== admin.passwordHash
-    ) {
+      fail(429, `Too many attempts. Try again in ${mins} minute${mins === 1 ? '' : 's'}.`);
+    }
+
+    const ok = admin && admin.passwordHash && verifyPassword(password, admin.passwordHash);
+
+    if (!ok) {
+      admin.failCount = (admin.failCount || 0) + 1;
+
+      if (admin.failCount >= 8) {
+        admin.lockedUntil = Date.now() + 15 * 60 * 1000;
+        admin.failCount = 0;
+      }
+
+      await saveAdmin();
+
       fail(401, 'Invalid password.');
     }
+
+    admin.failCount = 0;
+    admin.lockedUntil = 0;
+
+    if (!admin.passwordHash.startsWith('scrypt$')) {
+      admin.passwordHash = hashPassword(password);
+    }
+
+    await saveAdmin();
 
     setSession(res, true);
 
@@ -1125,12 +1174,7 @@ async function handle(req, res) {
 
     const admin = ctx().admin;
 
-    const currentHash = crypto
-      .createHash('sha256')
-      .update(current)
-      .digest('hex');
-
-    if (!admin || !admin.passwordHash || currentHash !== admin.passwordHash) {
+    if (!admin || !admin.passwordHash || !verifyPassword(current, admin.passwordHash)) {
       fail(400, 'Current password is wrong.');
     }
 
@@ -1138,10 +1182,9 @@ async function handle(req, res) {
       fail(400, 'New password must be at least 8 characters.');
     }
 
-    admin.passwordHash = crypto
-      .createHash('sha256')
-      .update(next)
-      .digest('hex');
+    admin.passwordHash = hashPassword(next);
+    admin.failCount = 0;
+    admin.lockedUntil = 0;
 
     await saveAdmin();
 
