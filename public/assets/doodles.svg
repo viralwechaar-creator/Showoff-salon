@@ -27,4 +27,7 @@
   <symbol id="gear" viewBox="0 0 24 24"><g><circle cx="12" cy="12" r="3"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.5 1.5M7.1 16.9l-1.5 1.5M18.4 18.4l-1.5-1.5M7.1 7.1 5.6 5.6"/></g></symbol>
   <symbol id="logout" viewBox="0 0 24 24"><g><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M14 8l4 4-4 4M18 12H8"/></g></symbol>
   <symbol id="dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.7" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="razor" viewBox="0 0 64 64"><g><rect x="14" y="10" width="36" height="14" rx="4"/><path d="M22 17h20"/><path d="M32 24v30"/><path d="M24 54h16"/></g></symbol>
+  <symbol id="spray" viewBox="0 0 64 64"><g><rect x="18" y="24" width="22" height="34" rx="6"/><path d="M24 24v-8h8v8"/><path d="M32 12h14"/><path d="M46 8v8l8-4Z"/><path d="M50 8 58 4M53 12l8 0M50 16l7 3" opacity=".55"/></g></symbol>
+  <symbol id="chair" viewBox="0 0 64 64"><g><path d="M14 10c-4 0-6-3-6-6"/><path d="M14 10h30v22c0 3-2 5-5 5H19c-3 0-5-2-5-5Z"/><path d="M19 37v9M45 37v9"/><path d="M14 46h36"/><path d="M32 46v10"/><path d="M20 56h24"/></g></symbol>
 </svg>

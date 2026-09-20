@@ -77,7 +77,7 @@
   /* ---------- section text + head doodles ---------- */
   set('servicesText', C.servicesText); set('galleryText', C.galleryText);
   set('stylistsText', C.stylistsText); set('aboutTitle', C.aboutTitle); set('bookText', C.bookText);
-  const headDoodles = { services: ['comb', ''], menu: ['sparkle', 'gold'], gallery: ['mirror', ''], stylists: ['scissors', ''] };
+  const headDoodles = { services: ['comb', ''], menu: ['sparkle', 'gold'], gallery: ['mirror', ''], stylists: ['chair', ''] };
   for (const [id, [d, cls]] of Object.entries(headDoodles)) $('#' + id + ' .sec-head').append(doodle(d, cls));
   $('.about').append(doodle('wave', 'gold'));
   $('.book-copy').append(doodle('polish'));
@@ -110,7 +110,7 @@
   function renderGallery() {
     const grid = $('#galGrid');
     if (!site.gallery.length) {
-      const tiles = [['a', 'scissors'], ['b', 'comb'], ['c', 'mirror'], ['d', 'wave'], ['b', 'polish'], ['a', 'sparkle']];
+      const tiles = [['a', 'scissors'], ['b', 'comb'], ['c', 'mirror'], ['d', 'spray'], ['b', 'polish'], ['a', 'razor']];
       grid.replaceChildren(...tiles.map(([k, d]) => h('div', { class: 'ph-tile ' + k, 'aria-hidden': 'true' }, doodle(d))));
       return;
     }
@@ -249,6 +249,7 @@
     const SEEN_KEY = 'ss_promo_seen';
     const promo = $('#promo');
     if (!promo) return;
+    $('.promo-in').prepend(doodle('spray', 'gold'));
 
     let seen = true;
     try { seen = !!localStorage.getItem(SEEN_KEY); } catch {}
