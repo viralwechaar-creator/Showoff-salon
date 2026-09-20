@@ -190,6 +190,29 @@
   </div>
 </footer>
 
+<dialog class="promo" id="promo" aria-label="Book an appointment">
+  <button class="promo-close" id="promoClose" aria-label="Close"></button>
+  <div class="promo-in">
+    <h3>Book your appointment</h3>
+    <p>Tell us what you need and when, we'll confirm your slot.</p>
+    <form id="promoForm" novalidate>
+      <div class="row2">
+        <div class="field"><label for="pmName">Your name</label><input id="pmName" name="name" autocomplete="name" required maxlength="80"></div>
+        <div class="field"><label for="pmPhone">Phone number</label><input id="pmPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></div>
+      </div>
+      <div class="field"><label for="pmService">Service</label>
+        <select id="pmService" name="service" required><option value="">Choose a service</option></select>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="pmDate">Date</label><input id="pmDate" name="date" type="date" required></div>
+        <div class="field"><label for="pmTime">Time</label><select id="pmTime" name="time" required><option value="">Choose a date first</option></select></div>
+      </div>
+      <p class="error" id="promoError" role="alert"></p>
+      <button class="btn btn-wide btn-pill" type="submit" id="promoBtn">Book now</button>
+    </form>
+  </div>
+</dialog>
+
 <dialog class="lightbox" id="lightbox" aria-label="Gallery image">
   <button class="lb-close" id="lbClose" aria-label="Close"></button>
   <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image"></button>

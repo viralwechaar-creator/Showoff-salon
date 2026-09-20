@@ -282,18 +282,66 @@
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     targets.forEach(el => io.observe(el));
-
-    const heroMark = $('.hero-mark');
-    if (heroMark) {
-      let ticking = false;
-      addEventListener('scroll', () => {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(() => {
-          heroMark.style.transform = scrollY < 900 ? `translateY(${scrollY * 0.12}px)` : '';
-          ticking = false;
-        });
-      }, { passive: true });
-    }
   }
+
+  /* ---------- first-visit booking popup ---------- */
+  (function () {
+    const SEEN_KEY = 'ss_promo_seen';
+    const promo = $('#promo');
+    if (!promo) return;
+
+    let seen = true;
+    try { seen = !!localStorage.getItem(SEEN_KEY); } catch {}
+
+    const markSeen = () => { try { localStorage.setItem(SEEN_KEY, '1'); } catch {} };
+
+    const idx = new Map(site.menu.flatMap(c => c.items.map(i => [i.id, i])));
+    $('#pmService').append(...site.menu.flatMap(c => c.items.map(i =>
+      h('option', { value: i.id, text: i.name + (c.gender !== 'all' ? ' (' + who(c.gender) + ')' : '') }))));
+
+    const pmDate = $('#pmDate'), pmTime = $('#pmTime');
+    const addDays = (d, n) => new Date(new Date(d + 'T00:00:00Z').getTime() + n * 864e5).toISOString().slice(0, 10);
+    pmDate.min = site.today; pmDate.max = addDays(site.today, S.advanceDays);
+
+    pmDate.addEventListener('change', async () => {
+      pmTime.replaceChildren(h('option', { value: '', text: 'Loading...' }));
+      try {
+        const r = await fetch('/api/slots?date=' + encodeURIComponent(pmDate.value));
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        if (d.closed || !d.slots) return pmTime.replaceChildren(h('option', { value: '', text: d.reason || 'No times available' }));
+        pmTime.replaceChildren(h('option', { value: '', text: 'Choose a time' }),
+          ...d.slots.map(s => h('option', { value: s.time, text: fmt12(s.time) + (s.free ? '' : ' (full)'), disabled: !s.free })));
+      } catch { pmTime.replaceChildren(h('option', { value: '', text: 'Could not load times' })); }
+    });
+
+    const promoErr = m => { $('#promoError').textContent = m || ''; };
+    $('#promoForm').addEventListener('submit', async e => {
+      e.preventDefault(); promoErr('');
+      const fd = new FormData(e.target);
+      const body = { name: fd.get('name'), phone: fd.get('phone'), date: fd.get('date'), time: fd.get('time'), services: [fd.get('service')] };
+      if (!body.name || body.name.trim().length < 2) return promoErr('Enter your name.');
+      if (String(body.phone || '').replace(/\D/g, '').length < 8) return promoErr('Enter a valid phone number.');
+      if (!body.services[0]) return promoErr('Choose a service.');
+      if (!body.date || !body.time) return promoErr('Choose a date and time.');
+      const btn = $('#promoBtn'); btn.disabled = true; btn.textContent = 'Sending...';
+      try {
+        const r = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Could not send the request.');
+        $('.promo-in').replaceChildren(
+          h('h3', { text: 'Request sent' }),
+          h('p', { text: 'Reference ' + d.booking.ref + '. We will confirm your slot at ' + fmt12(body.time) + '.' }),
+          h('button', { class: 'btn btn-wide btn-pill', type: 'button', onclick: () => promo.close() }, 'Close'));
+      } catch (ex) { promoErr(ex.message); }
+      finally { btn.disabled = false; btn.textContent = 'Book now'; }
+    });
+
+    $('#promoClose').replaceChildren(icon('close'));
+    $('#promoClose').addEventListener('click', () => { markSeen(); promo.close(); });
+    promo.addEventListener('click', e => { if (e.target === promo) { markSeen(); promo.close(); } });
+    promo.addEventListener('close', markSeen);
+
+    if (!seen) setTimeout(() => { try { promo.showModal(); } catch {} }, 1800);
+  })();
 })();
