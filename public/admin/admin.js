@@ -13,7 +13,7 @@
   let tt;
   function toast(msg, err) { const t = $('#toast'); t.textContent = msg; t.className = 'a-toast show' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => { t.className = 'a-toast'; }, 3400); }
   const fail = e => toast(e.message || 'Something went wrong', true);
-  const load = async () => { D = await api('GET', '/api/admin/data'); renderNav(); };
+  const load = async () => { D = await api('GET', '/api/admin/data'); if (!D.today) D.today = new Date().toLocaleDateString('en-CA'); renderNav(); };
 
   function modal(title, body, actions) {
     return new Promise(res => {
