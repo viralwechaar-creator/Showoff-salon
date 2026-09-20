@@ -123,17 +123,17 @@
 
   /* ---------- helpers ---------- */
   const who = g => g === 'female' ? 'Women' : g === 'male' ? 'Men' : 'Women and men';
-  const minPrice = c => Math.min(...c.items.flatMap(i => [i.price, i.price2]).filter(v => v != null));
+  const maxPrice = c => Math.max(...c.items.flatMap(i => [i.price, i.price2]).filter(v => v != null));
 
   /* ---------- services summary ---------- */
   function renderServices() {
     const catCount = site.menu.length;
     const itemCount = site.menu.reduce((a, c) => a + c.items.length, 0);
-    const lowest = Math.min(...site.menu.map(minPrice));
+    const highest = Math.max(...site.menu.map(maxPrice));
     $('#svcStats').replaceChildren(
       h('div', {}, h('dt', { text: catCount === 1 ? 'Category' : 'Categories' }), h('dd', { text: catCount })),
       h('div', {}, h('dt', { text: 'Treatments' }), h('dd', { text: itemCount + '+' })),
-      h('div', {}, h('dt', { text: 'Starting at' }), h('dd', { text: inr(lowest) })));
+      h('div', {}, h('dt', { text: 'Ends at' }), h('dd', { text: inr(highest) })));
     const names = site.menu.map(c => c.name);
     $('#svcTicker').replaceChildren(h('div', { class: 'svc-ticker-track' }, [...names, ...names].map(n => h('span', { text: n }))));
   }

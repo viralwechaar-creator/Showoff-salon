@@ -158,7 +158,6 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 .svc-ticker-track span { font-size: clamp(19px, 2.2vw, 28px); font-weight: 500; color: var(--muted); letter-spacing: -.01em; white-space: nowrap; display: flex; align-items: center; gap: 36px; padding-right: 36px; }
 .svc-ticker-track span::after { content: '\2022'; color: var(--gold-d); font-size: 13px; }
 @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.svc-cta { margin-top: clamp(28px, 4vw, 44px); }
 
 /* menu slider */
 .menu-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
