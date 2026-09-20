@@ -236,4 +236,36 @@
 
   renderServices(); renderMenu(false); renderGallery();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeight);
+
+  /* ---------- scroll reveal + hero parallax ---------- */
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const targets = $$('.sec-head, .svc-list li, .gal > *, .team .person, .about-body, .panel, .facts > div');
+    targets.forEach(el => el.classList.add('sr'));
+    $$('.svc-list li').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 40, 400) + 'ms'; });
+    $$('.gal > *').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 300) + 'ms'; });
+    $$('.team .person').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 80, 320) + 'ms'; });
+    $$('.facts > div').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 240) + 'ms'; });
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('sr-in');
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(el => io.observe(el));
+
+    const heroMark = $('.hero-mark');
+    if (heroMark) {
+      let ticking = false;
+      addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          heroMark.style.transform = scrollY < 900 ? `translateY(${scrollY * 0.12}px)` : '';
+          ticking = false;
+        });
+      }, { passive: true });
+    }
+  }
 })();

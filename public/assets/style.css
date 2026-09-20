@@ -266,8 +266,16 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
   .brand span { display: none; }
   .sec-head .doodle { width: 48px; }
 }
+
+/* scroll reveal */
+.sr { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
+.sr.sr-in { opacity: 1; transform: translateY(0); }
+.hero-mark { transition: transform .1s linear; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .disc { animation: none; }
   .slider { transition: none; }
+  .sr { opacity: 1; transform: none; transition: none; }
+  .hero-mark { transition: none; }
 }
