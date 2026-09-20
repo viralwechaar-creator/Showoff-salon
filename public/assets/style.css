@@ -120,7 +120,7 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 .hero-tel { text-decoration: none; color: inherit; border-bottom: 1px solid var(--line); }
 .hero-tel:hover { border-color: var(--plum); }
 
-.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-top: 0; padding: clamp(40px, 6vw, 72px) 0 0; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-top: 0; padding-top: clamp(40px, 6vw, 72px); }
 .facts > div { border-top: 1px solid var(--plum); padding-top: 14px; }
 .facts dt { font-size: 14px; color: var(--muted); }
 .facts dd { font-size: 18px; font-weight: 500; margin-top: 4px; line-height: 1.35; }
