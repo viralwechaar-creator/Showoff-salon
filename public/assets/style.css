@@ -61,24 +61,25 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 .hdr { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.96); backdrop-filter: blur(6px); border-bottom: 1px solid transparent; transition: border-color .25s var(--ease), box-shadow .25s var(--ease); }
 .hdr.is-scrolled { border-bottom-color: var(--line); box-shadow: 0 12px 24px -20px rgba(57,29,33,.4); }
 .hdr-in { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: 14px; }
-.brand img { width: 40px; height: 40px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: 14px; min-width: 0; }
+.brand img { width: 40px; height: 40px; flex: none; }
+.brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .menu-btn { display: flex; align-items: center; gap: 14px; border: 0; background: none; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; padding: 8px 0; }
-/* menu toggle: the real scissors glyph, crossfading to a close X when the nav opens */
+/* menu toggle: the scissors glyph always stays visible here — the full-screen
+   overlay (it sits above the header) carries its own close button, so crossfading
+   this one to an X would just be hidden the moment the menu opens. */
 .menu-btn-ico { width: 24px; height: 24px; position: relative; flex: none; margin-left: 6px; color: inherit; }
-.menu-btn-ico svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .25s var(--ease), transform .3s var(--ease); }
-.menu-btn-ico .ico-open { opacity: 1; transform: rotate(0deg) scale(1); }
-.menu-btn-ico .ico-close { opacity: 0; transform: rotate(-45deg) scale(.6); }
-.menu-btn[aria-expanded="true"] .menu-btn-ico .ico-open { opacity: 0; transform: rotate(45deg) scale(.6); }
-.menu-btn[aria-expanded="true"] .menu-btn-ico .ico-close { opacity: 1; transform: rotate(0deg) scale(1); }
+.menu-btn-ico svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.menu-btn-ico .ico-open { opacity: 1; }
+.menu-btn-ico .ico-close { opacity: 0; }
 
 /* full-screen nav overlay */
 .nav-overlay { position: fixed; inset: 0; z-index: 90; background: var(--plum); color: var(--cream); opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow-y: auto; }
 .nav-overlay.open { opacity: 1; visibility: visible; }
-.nav-overlay-close { position: fixed; top: 12px; right: var(--pad); width: 44px; height: 44px; border-radius: 999px; border: 0; background: none; color: var(--cream); display: grid; place-items: center; transition: background .2s var(--ease); }
+.nav-overlay-close { position: fixed; top: 12px; right: var(--pad); width: 44px; height: 44px; border-radius: 999px; border: 1px solid rgba(243,230,200,.4); background: rgba(243,230,200,.1); color: var(--cream); display: grid; place-items: center; transition: background .2s var(--ease), border-color .2s var(--ease); }
 .nav-overlay-close .ico { width: 20px; height: 20px; }
-.nav-overlay-close:hover { background: rgba(243,230,200,.12); }
+.nav-overlay-close:hover, .nav-overlay-close:active { background: rgba(243,230,200,.22); border-color: rgba(243,230,200,.7); }
 .nav-overlay-in { min-height: 100%; padding-top: 120px; padding-bottom: 40px; display: grid; align-content: space-between; gap: 60px; }
 .nav-links { display: grid; gap: 6px; }
 .nav-links a { text-decoration: none; color: var(--cream); font-size: clamp(32px, 6vw, 72px); font-weight: 500; letter-spacing: -.02em; padding: 10px 0; border-bottom: 1px solid rgba(243,230,200,.15); transition: color .2s var(--ease), padding-left .25s var(--ease); }
@@ -338,7 +339,9 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
   .item-pick { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 4px; }
   .price, .ph span { text-align: left; min-width: 0; }
   .ph { justify-content: flex-start; gap: 20px; }
-  .brand span { display: none; }
+  .brand { gap: 10px; font-size: 12px; letter-spacing: .1em; }
+  .brand img { width: 34px; height: 34px; }
+  .brand span { max-width: 34vw; }
   .sec-head .doodle { width: 48px; }
 
   /* promo popup: compact, minimal sheet instead of a near-full-screen form */
