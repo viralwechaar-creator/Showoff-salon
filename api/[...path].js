@@ -221,6 +221,12 @@ async function saveAdmin() {
   await writeJsonBlob(ADMIN_KEY, c.admin);
 }
 
+const SALON_TIMEZONE = 'Asia/Kolkata';
+
+function todayStr() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: SALON_TIMEZONE }).format(new Date());
+}
+
 function publicSite() {
   const { db } = ctx();
 
@@ -232,7 +238,7 @@ function publicSite() {
       s => s.visible && s.name !== 'Add name'
     ),
     gallery: (db.gallery || []).filter(g => g.visible),
-    today: new Date().toISOString().slice(0, 10)
+    today: todayStr()
   };
 }
 
@@ -471,7 +477,7 @@ async function makeInvoice(body) {
     id: crypto.randomUUID(),
     token: crypto.randomBytes(16).toString('hex'),
     no: 'SS-' + String(++db.counters.invoice).padStart(4, '0'),
-    date: validDate(body.date) ? cleanString(body.date, 10) : new Date().toISOString().slice(0, 10),
+    date: validDate(body.date) ? cleanString(body.date, 10) : todayStr(),
     client: { name, phone, email: cleanString(client.email, 120) },
     items,
     subtotal,
@@ -613,7 +619,8 @@ async function handle(req, res) {
       gallery: db.gallery || [],
       bookings: db.bookings || [],
       invoices: db.invoices || [],
-      clients: clientsList()
+      clients: clientsList(),
+      today: todayStr()
     });
   }
 

@@ -53,8 +53,9 @@ window.waLink = (phone, text) => {
   return 'https://wa.me/' + d + '?text=' + encodeURIComponent(text);
 };
 
-/* Resize an image file in the browser before upload (keeps uploads small). */
-window.readImage = (file, max = 1600) => new Promise((resolve, reject) => {
+/* Resize an image file in the browser before upload (keeps uploads small and the
+   site fast to load — everything here is shown at a few hundred px, never full-res). */
+window.readImage = (file, max = 1100) => new Promise((resolve, reject) => {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return reject(new Error('Choose a JPG, PNG or WebP image.'));
   const url = URL.createObjectURL(file), img = new Image();
   img.onload = () => {
@@ -63,7 +64,7 @@ window.readImage = (file, max = 1600) => new Promise((resolve, reject) => {
     c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
     c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
     URL.revokeObjectURL(url);
-    resolve(c.toDataURL('image/jpeg', 0.86));
+    resolve(c.toDataURL('image/jpeg', 0.8));
   };
   img.onerror = () => reject(new Error('That image could not be read.'));
   img.src = url;

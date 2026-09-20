@@ -51,12 +51,12 @@
 
   const heroMedia = $('#heroMedia');
   if (site.gallery && site.gallery.length) {
-    heroMedia.replaceChildren(h('img', { src: site.gallery[0].src, alt: '' }));
+    heroMedia.replaceChildren(h('img', { src: site.gallery[0].src, alt: '', fetchpriority: 'high', decoding: 'async' }));
   } else if (S.heroLogo) {
     heroMedia.replaceChildren(h('div', { class: 'hero-media-fallback' },
-      h('img', { src: S.heroLogo, alt: '', width: 900, height: 900 })));
+      h('img', { src: S.heroLogo, alt: '', width: 900, height: 900, fetchpriority: 'high', decoding: 'async' })));
   } else {
-    heroMedia.replaceChildren(h('img', { src: '/assets/hero-photo.jpg', alt: '' }));
+    heroMedia.replaceChildren(h('img', { src: '/assets/hero-photo.jpg', alt: '', fetchpriority: 'high', decoding: 'async' }));
   }
 
   const heroTel = $('#heroTel');
@@ -115,7 +115,7 @@
       return;
     }
     grid.replaceChildren(...site.gallery.map((g, i) => h('button', { type: 'button', 'aria-label': 'Open image' + (g.caption ? ': ' + g.caption : ''), onclick: () => { showLb(i); lb.showModal(); } },
-      h('img', { src: g.src, alt: g.caption || '', loading: 'lazy' }))));
+      h('img', { src: g.src, alt: g.caption || '', loading: 'lazy', decoding: 'async' }))));
   }
   $('#lbClose').addEventListener('click', () => lb.close());
   $('#lbPrev').addEventListener('click', () => showLb(li - 1));
@@ -125,7 +125,7 @@
 
   /* ---------- team + about ---------- */
   $('#team').replaceChildren(...site.stylists.map(s => h('article', { class: 'person' },
-    h('div', { class: 'pic' }, s.photo ? h('img', { src: s.photo, alt: s.name, loading: 'lazy' }) : doodle('scissors')),
+    h('div', { class: 'pic' }, s.photo ? h('img', { src: s.photo, alt: s.name, loading: 'lazy', decoding: 'async' }) : doodle('scissors')),
     h('h3', { text: s.name }),
     s.role ? h('p', { class: 'role', text: s.role }) : null,
     s.bio ? h('p', { class: 'bio', text: s.bio }) : null)));
