@@ -21,17 +21,35 @@
       <img src="/assets/logo-plum.png" alt="" width="40" height="40">
       <span id="brandName">Showoff Salon</span>
     </a>
-    <nav class="nav" id="nav" aria-label="Main">
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navOverlay">
+      <span>Menu</span>
+      <span class="menu-btn-ico" id="menuBtnIco" aria-hidden="true"><span></span><span></span></span>
+    </button>
+  </div>
+</header>
+
+<div class="nav-overlay" id="navOverlay" aria-hidden="true">
+  <div class="wrap nav-overlay-in">
+    <nav class="nav-links" id="nav" aria-label="Main">
       <a href="#services">Services</a>
       <a href="#menu">Menu</a>
       <a href="#gallery">Gallery</a>
       <a href="#stylists">Our hairstylists</a>
       <a href="#about">About us</a>
-      <a class="btn btn-sm" href="#book">Book appointment</a>
+      <a href="#book">Book appointment</a>
     </nav>
-    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav"></button>
+    <div class="nav-overlay-foot">
+      <div class="nav-overlay-contact">
+        <p id="navAddress"></p>
+        <a class="link" id="navEmail" href=""></a>
+      </div>
+      <div class="nav-overlay-meta">
+        <span id="navCopyright"></span>
+        <a id="navInsta" href="" target="_blank" rel="noopener"></a>
+      </div>
+    </div>
   </div>
-</header>
+</div>
 
 <main id="main">
   <!-- Hero -->

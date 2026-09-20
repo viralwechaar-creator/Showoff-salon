@@ -14,6 +14,7 @@
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 76px; -webkit-text-size-adjust: 100%; }
+html.nav-open { overflow: hidden; }
 body { margin: 0; font: 400 17px/1.55 var(--font); color: var(--plum); background: #fff; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 [hidden] { display: none !important; }
 img { max-width: 100%; display: block; }
@@ -53,11 +54,28 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 .hdr-in { display: flex; align-items: center; justify-content: space-between; height: 68px; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: 14px; }
 .brand img { width: 40px; height: 40px; }
-.nav { display: flex; align-items: center; gap: clamp(16px, 2.4vw, 36px); font-size: 15px; }
-.nav a:not(.btn) { text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; }
-.nav a:not(.btn):hover { border-color: var(--plum); }
-.burger { display: none; width: 44px; height: 44px; border: 0; background: none; }
-.burger .ico { width: 28px; height: 28px; stroke-width: 1.5; }
+
+.menu-btn { display: flex; align-items: center; gap: 14px; border: 0; background: none; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; padding: 8px 0; }
+.menu-btn-ico { width: 24px; height: 16px; position: relative; flex: none; }
+.menu-btn-ico span { position: absolute; left: 0; right: 0; height: 1px; background: currentColor; transition: transform .25s ease, top .25s ease; }
+.menu-btn-ico span:first-child { top: 0; }
+.menu-btn-ico span:last-child { top: 100%; }
+.menu-btn[aria-expanded="true"] .menu-btn-ico span:first-child { top: 50%; transform: rotate(45deg); }
+.menu-btn[aria-expanded="true"] .menu-btn-ico span:last-child { top: 50%; transform: rotate(-45deg); }
+
+/* full-screen nav overlay */
+.nav-overlay { position: fixed; inset: 0; z-index: 90; background: var(--plum); color: var(--cream); opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow-y: auto; }
+.nav-overlay.open { opacity: 1; visibility: visible; }
+.nav-overlay-in { min-height: 100%; padding-top: 120px; padding-bottom: 40px; display: grid; align-content: space-between; gap: 60px; }
+.nav-links { display: grid; gap: 6px; }
+.nav-links a { text-decoration: none; color: var(--cream); font-size: clamp(32px, 6vw, 72px); font-weight: 500; letter-spacing: -.02em; padding: 10px 0; border-bottom: 1px solid rgba(243,230,200,.15); transition: color .15s, padding-left .2s; }
+.nav-links a:hover, .nav-links a:focus-visible { color: var(--gold); padding-left: 12px; }
+.nav-overlay-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; font-size: 14px; }
+.nav-overlay-contact { display: grid; gap: 10px; color: var(--cream); opacity: .85; }
+.nav-overlay-contact .link { color: var(--gold); border-color: rgba(232,207,127,.5); }
+.nav-overlay-meta { display: flex; gap: 24px; color: var(--cream); opacity: .6; }
+.nav-overlay-meta a { color: inherit; text-decoration: none; }
+.nav-overlay-meta a:hover { opacity: 1; }
 
 /* hero */
 .hero { position: relative; overflow-x: clip; }
@@ -241,11 +259,9 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 
 /* responsive */
 @media (max-width: 960px) {
-  .burger { display: grid; place-items: center; }
-  .nav { position: absolute; left: 0; right: 0; top: 68px; background: #fff; border-bottom: 1px solid var(--line); flex-direction: column; align-items: stretch; gap: 0; padding: 8px var(--pad) 20px; display: none; }
-  .nav.open { display: flex; }
-  .nav a:not(.btn) { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 18px; }
-  .nav .btn { margin-top: 16px; padding: 15px; }
+  .menu-btn span:first-child { display: none; }
+  .nav-overlay-in { padding-top: 96px; gap: 40px; }
+  .nav-overlay-foot { flex-direction: column; align-items: flex-start; gap: 20px; }
   .hero-split { grid-template-columns: 1fr; position: relative; min-height: auto; }
   .hero-media { min-height: 68vh; }
   .hero-text {

@@ -11,14 +11,31 @@
   const { settings: S, content: C } = site;
   const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text || ''; };
 
-  /* ---------- header + mobile nav ---------- */
+  /* ---------- header + full-screen nav ---------- */
   set('brandName', S.salonName);
   document.title = S.salonName + ', ' + (S.address || 'Jodhpur');
-  const burger = $('#burger'), nav = $('#nav');
-  const setBurger = open => { burger.replaceChildren(icon(open ? 'close' : 'menu')); burger.setAttribute('aria-expanded', open); burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); nav.classList.toggle('open', open); };
-  setBurger(false);
-  burger.addEventListener('click', () => setBurger(!nav.classList.contains('open')));
-  nav.addEventListener('click', e => { if (e.target.closest('a')) setBurger(false); });
+  const menuBtn = $('#menuBtn'), navOverlay = $('#navOverlay'), nav = $('#nav');
+  const setMenu = open => {
+    menuBtn.setAttribute('aria-expanded', open);
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    navOverlay.classList.toggle('open', open);
+    navOverlay.setAttribute('aria-hidden', String(!open));
+    document.documentElement.classList.toggle('nav-open', open);
+  };
+  setMenu(false);
+  menuBtn.addEventListener('click', () => setMenu(!navOverlay.classList.contains('open')));
+  nav.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
+  navOverlay.addEventListener('click', e => { if (e.target === navOverlay) setMenu(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && navOverlay.classList.contains('open')) setMenu(false); });
+
+  set('navAddress', S.address);
+  const navEmail = $('#navEmail');
+  if (S.email) { navEmail.href = 'mailto:' + S.email; navEmail.textContent = 'Email us'; }
+  else navEmail.hidden = true;
+  set('navCopyright', '© ' + new Date().getFullYear() + ' ' + S.salonName);
+  const navInsta = $('#navInsta');
+  if (S.instagram) { navInsta.href = 'https://instagram.com/' + S.instagram; navInsta.textContent = '@' + S.instagram; }
+  else navInsta.hidden = true;
 
   /* ---------- hero + facts ---------- */
   set('heroEyebrow', S.tagline);
