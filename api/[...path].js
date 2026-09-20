@@ -309,7 +309,7 @@ function validTime(value) {
   return /^\d{2}:\d{2}$/.test(value);
 }
 
-function makeBooking(body) {
+async function makeBooking(body) {
   const { db } = ctx();
 
   const name = cleanString(body.name, 100);
@@ -449,7 +449,7 @@ async function handle(req, res) {
     method === 'POST' &&
     pathname === '/bookings'
   ) {
-    const booking = makeBooking(body);
+    const booking = await makeBooking(body);
 
     return json(res, 201, {
       ok: true,
