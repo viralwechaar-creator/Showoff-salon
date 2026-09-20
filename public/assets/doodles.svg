@@ -16,4 +16,14 @@
   <symbol id="close" viewBox="0 0 24 24"><g><path d="M6 6l12 12M18 6 6 18"/></g></symbol>
   <symbol id="menu" viewBox="0 0 24 24"><g><path d="M4 8h16M4 16h16"/></g></symbol>
   <symbol id="whatsapp" viewBox="0 0 24 24"><g><path d="M4 20l1.3-4.2A8 8 0 1 1 8.4 18.9L4 20Z"/><path d="M9 9c0 3 3 6 6 6l1.3-1.5-2-1-1 .7a4 4 0 0 1-2-2l.7-1-1-2L9 9Z"/></g></symbol>
+  <symbol id="grid" viewBox="0 0 24 24"><g><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></g></symbol>
+  <symbol id="calendar" viewBox="0 0 24 24"><g><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></g></symbol>
+  <symbol id="receipt" viewBox="0 0 24 24"><g><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6M9 16h4"/></g></symbol>
+  <symbol id="users" viewBox="0 0 24 24"><g><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.6-4 3-6 5.5-6s4.9 2 5.5 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 13.2c2.4.4 4 2.2 4.5 5.3"/></g></symbol>
+  <symbol id="list" viewBox="0 0 24 24"><g><path d="M4 6h2M4 12h2M4 18h2M9 6h11M9 12h11M9 18h11"/></g></symbol>
+  <symbol id="cut" viewBox="0 0 24 24"><g><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="18" r="2.5"/><path d="M9 16 19 4M15.5 16 5 4"/></g></symbol>
+  <symbol id="pics" viewBox="0 0 24 24"><g><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-5 4 4 3-3 4 4"/></g></symbol>
+  <symbol id="doc" viewBox="0 0 24 24"><g><path d="M7 3h7l4 4v14H7Z"/><path d="M14 3v4h4"/><path d="M9.5 12h5M9.5 15.5h5"/></g></symbol>
+  <symbol id="gear" viewBox="0 0 24 24"><g><circle cx="12" cy="12" r="3"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.5 1.5M7.1 16.9l-1.5 1.5M18.4 18.4l-1.5-1.5M7.1 7.1 5.6 5.6"/></g></symbol>
+  <symbol id="logout" viewBox="0 0 24 24"><g><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M14 8l4 4-4 4M18 12H8"/></g></symbol>
 </svg>
