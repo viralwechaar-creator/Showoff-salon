@@ -125,23 +125,6 @@ function clearSession(res) {
   );
 }
 
-function isConflict(e) {
-  const name = String(e?.name || e?.constructor?.name || '');
-  const msg = String(e?.message || '');
-
-  return (
-    /Precondition|AlreadyExists/i.test(name) ||
-    /Precondition|AlreadyExists|already\s*exists|condition|etag|ETag|conflict/i.test(msg)
-  );
-}
-
-function conflictErr() {
-  const e = new Error('Someone else just saved changes. Please try again.');
-  e.status = 409;
-  e.conflict = true;
-  return e;
-}
-
 async function readJsonBlob(key) {
   const { get } = await blob();
 
@@ -154,36 +137,18 @@ async function readJsonBlob(key) {
 
   const text = await new Response(r.stream).text();
 
-  return {
-    data: JSON.parse(text),
-    etag: (r.blob && r.blob.etag) || r.etag
-  };
+  return JSON.parse(text);
 }
 
-async function writeJsonBlob(key, data, etag, forceOverwrite = false) {
+async function writeJsonBlob(key, data) {
   const { put } = await blob();
 
-  try {
-    const options = {
-      access: 'private',
-      contentType: 'application/json',
-      addRandomSuffix: false
-    };
-
-    if (forceOverwrite) {
-      options.allowOverwrite = true;
-    } else if (etag) {
-      options.allowOverwrite = true;
-      options.ifMatch = etag;
-    } else {
-      options.allowOverwrite = false;
-    }
-
-    await put(key, JSON.stringify(data), options);
-  } catch (e) {
-    if (isConflict(e)) throw conflictErr();
-    throw e;
-  }
+  await put(key, JSON.stringify(data), {
+    access: 'private',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+    allowOverwrite: true
+  });
 }
 
 async function loadDb() {
@@ -195,9 +160,7 @@ async function loadDb() {
 
   await writeJsonBlob(DB_KEY, db);
 
-  const created = await readJsonBlob(DB_KEY);
-
-  return created || { data: db, etag: null };
+  return db;
 }
 
 async function loadAdmin() {
@@ -222,9 +185,7 @@ async function loadAdmin() {
 
   await writeJsonBlob(ADMIN_KEY, data);
 
-  const created = await readJsonBlob(ADMIN_KEY);
-
-  return created || { data, etag: null };
+  return data;
 }
 
 async function getStore() {
@@ -235,14 +196,7 @@ async function getStore() {
   const db = await loadDb();
   const admin = await loadAdmin();
 
-  const store = {
-    db: db.data,
-    etag: db.etag,
-    admin: admin.data,
-    adminEtag: admin.etag
-  };
-
-  return store;
+  return { db, admin };
 }
 
 function ctx() {
@@ -255,25 +209,16 @@ function ctx() {
   return c;
 }
 
-async function save(forceOverwrite = false) {
+async function save() {
   const c = ctx();
 
-  await writeJsonBlob(
-    DB_KEY,
-    c.db,
-    c.etag,
-    forceOverwrite
-  );
+  await writeJsonBlob(DB_KEY, c.db);
 }
 
 async function saveAdmin() {
   const c = ctx();
 
-  await writeJsonBlob(
-    ADMIN_KEY,
-    c.admin,
-    c.adminEtag
-  );
+  await writeJsonBlob(ADMIN_KEY, c.admin);
 }
 
 function publicSite() {
@@ -424,7 +369,7 @@ async function makeBooking(body, isAdminBooking = false) {
 
   db.bookings.push(rec);
 
-  await save(true);
+  await save();
 
   return rec;
 }
@@ -545,7 +490,7 @@ async function makeInvoice(body) {
   const linkedBooking = (db.bookings || []).find(b => b.id === inv.bookingId);
   if (linkedBooking) linkedBooking.status = 'completed';
 
-  await save(true);
+  await save();
 
   return inv;
 }
@@ -1054,7 +999,7 @@ async function handle(req, res) {
     const c = ctx();
     c.db = fresh;
 
-    await save(true);
+    await save();
 
     return json(res, 200, {
       ok: true
@@ -1100,38 +1045,23 @@ async function handle(req, res) {
 }
 
 module.exports = async function handler(req, res) {
-  for (let attempt = 0; attempt < 4; attempt++) {
-    try {
-      const store = await getStore();
+  try {
+    const store = await getStore();
 
-      return await als.run(store, () =>
-        handle(req, res)
-      );
-    } catch (e) {
-      if (e && e.conflict && attempt < 3) {
-        continue;
-      }
+    return await als.run(store, () => handle(req, res));
+  } catch (e) {
+    const status = Number(e?.status) || 500;
 
-      const status = Number(e?.status) || 500;
-
-      if (res.headersSent) {
-        res.end();
-        return;
-      }
-
-      return json(res, status, {
-        error:
-          status >= 500
-            ? 'Something went wrong. Please try again.'
-            : String(e.message || 'Request failed.')
-      });
+    if (res.headersSent) {
+      res.end();
+      return;
     }
-  }
 
-  if (!res.headersSent) {
-    return json(res, 409, {
+    return json(res, status, {
       error:
-        'Someone else just saved changes. Please try again.'
+        status >= 500
+          ? 'Something went wrong. Please try again.'
+          : String(e.message || 'Request failed.')
     });
   }
 };
