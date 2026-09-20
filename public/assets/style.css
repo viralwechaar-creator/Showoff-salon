@@ -246,13 +246,15 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
   .sec-head .doodle { grid-column: 10 / 13; grid-row: 1; }
   .svc-name { grid-column: 1 / 9; }
   .svc-from { grid-column: 9 / 13; }
-  .svc-who { grid-column: 1 / 5; grid-row: 2; }
-  .svc-count { grid-column: 5 / 9; grid-row: 2; }
+  .svc-who { grid-column: 1 / 7; grid-row: 2; }
+  .svc-count { grid-column: 7 / 13; grid-row: 2; }
   .slide-head, .slide-list { grid-column: 1 / -1; }
   .about h2, .about-body { grid-column: 1 / -1; }
   .book-copy, .panel { grid-column: 1 / -1; position: static; }
   .foot-grid > * { grid-column: 1 / -1 !important; text-align: left !important; }
   .lightbox[open] { grid-template-columns: 44px 1fr 44px; }
+  .gal { columns: 2 120px; column-gap: 12px; }
+  .gal > * { margin-bottom: 12px; }
 }
 @media (max-width: 560px) {
   body { font-size: 16px; }

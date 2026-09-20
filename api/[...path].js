@@ -283,8 +283,10 @@ function publicSite() {
     settings: db.settings,
     menu: db.menu,
     content: db.content,
-    stylists: db.stylists || [],
-    gallery: db.gallery || [],
+    stylists: (db.stylists || []).filter(
+      s => s.visible && s.name !== 'Add name'
+    ),
+    gallery: (db.gallery || []).filter(g => g.visible),
     today: new Date().toISOString().slice(0, 10)
   };
 }
