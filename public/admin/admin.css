@@ -94,6 +94,7 @@ dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
 
 @media (max-width: 1000px) {
   .a-app { grid-template-columns: 1fr; }
+  .a-side, .a-main { min-width: 0; }
   .a-side { position: static; height: auto; padding: 12px 0 0; }
   .a-brand { padding: 0 16px 8px; }
   #sideNav { display: flex; overflow-x: auto; }
@@ -103,4 +104,6 @@ dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
   .a-cols { grid-template-columns: 1fr; gap: 32px; }
   .a-item { grid-template-columns: 1fr 1fr; }
   .a-item .desc { grid-column: 1 / -1; }
+  .seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .seg::-webkit-scrollbar { display: none; }
 }
