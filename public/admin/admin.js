@@ -504,7 +504,8 @@
   }
   function viewSettings() {
     const S = JSON.parse(JSON.stringify(D.settings)), P = { current: '', next: '' };
-    if (!S.bgMusic) S.bgMusic = { enabled: false, src: '', volume: 15 };
+    if (!S.bgMusic) S.bgMusic = { mode: 'off', src: '', volume: 15, spotifyUrl: '', spotifyEmbed: '' };
+    if (!S.bgMusic.mode) S.bgMusic.mode = S.bgMusic.enabled ? 'upload' : 'off';
     const id = k => 's' + k;
     const days = h('div', { style: 'display:flex;gap:16px;flex-wrap:wrap' }, DAYS.map((d, i) => h('label', { class: 'a-check' }, h('input', { type: 'checkbox', checked: S.closedDays.includes(i), onchange: e => { S.closedDays = e.target.checked ? [...S.closedDays, i] : S.closedDays.filter(x => x !== i); } }), d)));
     const logoBox = h('div', { class: 'a-card', style: 'max-width:220px' });
@@ -522,23 +523,56 @@
     }
     drawLogo();
 
+    const MUSIC_MODES = { off: 'Off', upload: 'Uploaded track', spotify: 'Spotify' };
+    const spotifyEmbedUrl = url => {
+      const m = String(url || '').match(/open\.spotify\.com\/(?:intl-\w+\/)?(playlist|track|album|artist)\/([a-zA-Z0-9]+)/);
+      return m ? `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator&theme=0` : '';
+    };
     const musicBox = h('div', { class: 'a-card', style: 'max-width:420px' });
     function drawMusic() {
-      const file = h('input', { type: 'file', accept: 'audio/mpeg', class: 'vh', id: 'sMusicFile', onchange: async e => {
-        const f = e.target.files[0]; if (!f) return;
-        try { toast('Uploading track...'); S.bgMusic.src = await uploadAudio(f); drawMusic(); } catch (ex) { fail(ex); }
-      } });
-      const volLabel = h('span', { class: 'muted', text: S.bgMusic.volume + '%' });
-      musicBox.replaceChildren(
-        S.bgMusic.src ? h('audio', { controls: true, src: S.bgMusic.src, style: 'width:100%' }) : h('p', { class: 'muted', text: 'No track uploaded yet.' }),
-        file,
-        h('div', { style: 'margin-top:8px' },
-          h('label', { class: 'btn btn-sm btn-alt', for: 'sMusicFile', tabindex: 0, onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } } }, S.bgMusic.src ? 'Change track' : 'Upload track'),
-          S.bgMusic.src ? [' ', btn('Remove track', () => { S.bgMusic.src = ''; S.bgMusic.enabled = false; drawMusic(); }, 'btn-sm btn-alt')] : null),
-        h('div', { style: 'margin-top:14px' }, chk(S.bgMusic, 'enabled', 'Play for visitors')),
-        h('div', { class: 'field', style: 'margin-top:10px;max-width:260px' },
-          h('label', {}, 'Volume ', volLabel),
-          h('input', { type: 'range', min: 0, max: 60, value: S.bgMusic.volume, oninput: e => { S.bgMusic.volume = +e.target.value; volLabel.textContent = S.bgMusic.volume + '%'; } })));
+      const modeSeg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Music source', style: 'margin-bottom:16px' },
+        Object.entries(MUSIC_MODES).map(([m, t]) => h('button', { type: 'button', 'aria-pressed': S.bgMusic.mode === m, onclick: () => { S.bgMusic.mode = m; drawMusic(); } }, t)));
+
+      const panel = [];
+
+      if (S.bgMusic.mode === 'upload') {
+        const file = h('input', { type: 'file', accept: 'audio/mpeg', class: 'vh', id: 'sMusicFile', onchange: async e => {
+          const f = e.target.files[0]; if (!f) return;
+          try { toast('Uploading track...'); S.bgMusic.src = await uploadAudio(f); drawMusic(); } catch (ex) { fail(ex); }
+        } });
+        const volLabel = h('span', { class: 'muted', text: S.bgMusic.volume + '%' });
+        panel.push(
+          S.bgMusic.src ? h('audio', { controls: true, src: S.bgMusic.src, style: 'width:100%' }) : h('p', { class: 'muted', text: 'No track uploaded yet.' }),
+          file,
+          h('div', { style: 'margin-top:8px' },
+            h('label', { class: 'btn btn-sm btn-alt', for: 'sMusicFile', tabindex: 0, onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } } }, S.bgMusic.src ? 'Change track' : 'Upload track'),
+            S.bgMusic.src ? [' ', btn('Remove track', () => { S.bgMusic.src = ''; drawMusic(); }, 'btn-sm btn-alt')] : null),
+          h('div', { class: 'field', style: 'margin-top:14px;max-width:260px' },
+            h('label', {}, 'Volume ', volLabel),
+            h('input', { type: 'range', min: 0, max: 60, value: S.bgMusic.volume, oninput: e => { S.bgMusic.volume = +e.target.value; volLabel.textContent = S.bgMusic.volume + '%'; } })));
+      } else if (S.bgMusic.mode === 'spotify') {
+        const preview = h('div', { style: 'margin-top:10px' });
+        const drawPreview = () => {
+          const embed = spotifyEmbedUrl(S.bgMusic.spotifyUrl);
+          S.bgMusic.spotifyEmbed = embed;
+          preview.replaceChildren(embed
+            ? h('iframe', { src: embed, width: '100%', height: '152', style: 'border:0;border-radius:12px', allow: 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' })
+            : S.bgMusic.spotifyUrl
+              ? h('p', { class: 'a-note', style: 'color:#A3241F', text: "That doesn't look like a Spotify playlist, track, album or artist link." })
+              : null);
+        };
+        panel.push(
+          h('div', { class: 'field' },
+            h('label', { for: 'sSpotifyUrl' }, 'Spotify playlist, track, album or artist link'),
+            h('input', { type: 'url', id: 'sSpotifyUrl', placeholder: 'https://open.spotify.com/playlist/...', value: S.bgMusic.spotifyUrl || '', oninput: e => { S.bgMusic.spotifyUrl = e.target.value; drawPreview(); } })),
+          h('p', { class: 'a-note', text: "Visitors see Spotify's own player and press play themselves - no login needed to hear a preview." }),
+          preview);
+        drawPreview();
+      } else {
+        panel.push(h('p', { class: 'muted', text: 'No music will play on the website.' }));
+      }
+
+      musicBox.replaceChildren(modeSeg, ...panel);
     }
     drawMusic();
 
@@ -566,7 +600,7 @@
       h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Shown in the home page hero in place of the salon photo. Leave empty to use the photo.' }),
       logoBox,
       h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Background music' }),
-      h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Loops quietly for visitors. Browsers block sound until a visitor taps the on-site mute button once, and they can turn it off any time. Only upload music you have the rights to play publicly.' }),
+      h('p', { class: 'muted', style: 'margin-bottom:12px', text: "Pick at most one source. An uploaded track loops quietly and needs a visitor to tap the on-site button once before it makes sound (browsers block that automatically); only upload music you have the rights to play publicly. Spotify shows their own player instead." }),
       musicBox,
       h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Share your menu' }),
       h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Print this at the counter or entrance. Scanning it opens your treatment menu, where clients can browse and pick services before booking.' }),

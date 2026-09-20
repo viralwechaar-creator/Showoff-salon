@@ -348,24 +348,51 @@
   /* ---------- background music ---------- */
   (function () {
     const M = S.bgMusic;
-    if (!M || !M.enabled || !M.src) return;
-    const MUTE_KEY = 'ss_music_muted';
-    let muted = true;
-    try { muted = localStorage.getItem(MUTE_KEY) !== '0'; } catch {}
-    const audioEl = h('audio', { src: M.src, loop: true, preload: 'auto' });
-    audioEl.volume = Math.max(0, Math.min(1, (M.volume || 15) / 100));
-    audioEl.muted = muted;
-    const toggle = h('button', { class: 'bg-music-toggle', type: 'button' });
-    const sync = () => { toggle.replaceChildren(icon(muted ? 'sound-off' : 'sound-on')); toggle.setAttribute('aria-label', muted ? 'Play background music' : 'Mute background music'); };
-    sync();
-    document.body.append(audioEl, toggle);
-    audioEl.play().catch(() => {});
-    toggle.addEventListener('click', () => {
-      muted = !muted;
+    if (!M) return;
+    const mode = M.mode || (M.enabled ? 'upload' : 'off');
+
+    if (mode === 'upload' && M.src) {
+      const MUTE_KEY = 'ss_music_muted';
+      let muted = true;
+      try { muted = localStorage.getItem(MUTE_KEY) !== '0'; } catch {}
+      const audioEl = h('audio', { src: M.src, loop: true, preload: 'auto' });
+      audioEl.volume = Math.max(0, Math.min(1, (M.volume || 15) / 100));
       audioEl.muted = muted;
+      const toggle = h('button', { class: 'bg-music-toggle', type: 'button' });
+      const sync = () => { toggle.replaceChildren(icon(muted ? 'sound-off' : 'sound-on')); toggle.setAttribute('aria-label', muted ? 'Play background music' : 'Mute background music'); };
       sync();
-      try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch {}
+      document.body.append(audioEl, toggle);
       audioEl.play().catch(() => {});
-    });
+      toggle.addEventListener('click', () => {
+        muted = !muted;
+        audioEl.muted = muted;
+        sync();
+        try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch {}
+        audioEl.play().catch(() => {});
+      });
+    } else if (mode === 'spotify' && M.spotifyEmbed) {
+      const OPEN_KEY = 'ss_music_open';
+      let open = false;
+      try { open = localStorage.getItem(OPEN_KEY) === '1'; } catch {}
+      const popover = h('div', { class: 'spotify-popover', hidden: !open });
+      const toggle = h('button', { class: 'bg-music-toggle', type: 'button' });
+      let loaded = false;
+      const sync = () => {
+        toggle.replaceChildren(icon(open ? 'sound-on' : 'sound-off'));
+        toggle.setAttribute('aria-label', open ? 'Hide music player' : 'Show music player');
+        popover.hidden = !open;
+        if (open && !loaded) {
+          loaded = true;
+          popover.replaceChildren(h('iframe', { src: M.spotifyEmbed, width: '100%', height: '152', loading: 'lazy', allow: 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' }));
+        }
+      };
+      sync();
+      document.body.append(toggle, popover);
+      toggle.addEventListener('click', () => {
+        open = !open;
+        sync();
+        try { localStorage.setItem(OPEN_KEY, open ? '1' : '0'); } catch {}
+      });
+    }
   })();
 })();
