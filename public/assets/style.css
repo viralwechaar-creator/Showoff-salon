@@ -27,7 +27,7 @@ body { margin: 0; font: 400 17px/1.55 var(--font); color: var(--plum); backgroun
 img { max-width: 100%; display: block; }
 a { color: inherit; }
 button, input, select, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; }
+button { cursor: pointer; -webkit-appearance: none; appearance: none; }
 h1, h2, h3, p, dl, dd, ul, figure { margin: 0; padding: 0; }
 ul { list-style: none; }
 :focus-visible { outline: 2px solid var(--plum); outline-offset: 3px; }
@@ -267,6 +267,7 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 .slot input:disabled { cursor: not-allowed; }
 .slot input:disabled + span { color: #b7aaa6; text-decoration: line-through; background: var(--tint); }
 .error { color: #A3241F; font-size: 15px; min-height: 1.4em; margin-bottom: 8px; }
+.error:empty { min-height: 0; margin-bottom: 0; }
 .done { display: grid; gap: 18px; }
 .done h3 { font-size: clamp(28px, 3vw, 40px); }
 .done dl { display: grid; gap: 10px; border-top: 1px solid var(--plum); padding-top: 16px; }
@@ -339,6 +340,19 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
   .ph { justify-content: flex-start; gap: 20px; }
   .brand span { display: none; }
   .sec-head .doodle { width: 48px; }
+
+  /* promo popup: compact, minimal sheet instead of a near-full-screen form */
+  .promo { width: calc(100vw - 24px); }
+  .promo-in { padding: 20px 20px 22px; gap: 4px; }
+  .promo-in .doodle { display: none; }
+  .promo-in h3 { font-size: 21px; }
+  .promo-in > p { margin: 6px 0 16px; font-size: 14px; }
+  .promo-in .row2 { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .promo-in .field { margin-bottom: 12px; }
+  .promo-in .field label { font-size: 12px; }
+  .promo-in .field input, .promo-in .field select { font-size: 15px; padding: 7px 0; }
+  .promo-in .btn-wide { padding-block: 13px; }
+  .promo-close { top: 10px; right: 10px; width: 36px; height: 36px; }
 }
 
 /* scroll reveal */
