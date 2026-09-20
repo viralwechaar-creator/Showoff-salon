@@ -322,4 +322,28 @@
 
     if (!seen) setTimeout(() => { try { promo.showModal(); } catch {} }, 1800);
   })();
+
+  /* ---------- background music ---------- */
+  (function () {
+    const M = S.bgMusic;
+    if (!M || !M.enabled || !M.src) return;
+    const MUTE_KEY = 'ss_music_muted';
+    let muted = true;
+    try { muted = localStorage.getItem(MUTE_KEY) !== '0'; } catch {}
+    const audioEl = h('audio', { src: M.src, loop: true, preload: 'auto' });
+    audioEl.volume = Math.max(0, Math.min(1, (M.volume || 15) / 100));
+    audioEl.muted = muted;
+    const toggle = h('button', { class: 'bg-music-toggle', type: 'button' });
+    const sync = () => { toggle.replaceChildren(icon(muted ? 'sound-off' : 'sound-on')); toggle.setAttribute('aria-label', muted ? 'Play background music' : 'Mute background music'); };
+    sync();
+    document.body.append(audioEl, toggle);
+    audioEl.play().catch(() => {});
+    toggle.addEventListener('click', () => {
+      muted = !muted;
+      audioEl.muted = muted;
+      sync();
+      try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch {}
+      audioEl.play().catch(() => {});
+    });
+  })();
 })();

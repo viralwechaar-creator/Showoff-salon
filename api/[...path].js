@@ -35,7 +35,7 @@ function readBody(req) {
 
     req.on('data', chunk => {
       body += chunk;
-      if (body.length > 2_000_000) {
+      if (body.length > 15_000_000) {
         reject(Object.assign(new Error('Request body too large.'), { status: 413 }));
         req.destroy();
       }
@@ -1053,6 +1053,55 @@ async function handle(req, res) {
     await put(`${UPLOAD_PREFIX}${name}`, buf, {
       access: 'private',
       contentType: `image/${match[1]}`,
+      addRandomSuffix: false,
+      allowOverwrite: false
+    });
+
+    return json(res, 201, {
+      ok: true,
+      src: `/uploads/${name}`
+    });
+  }
+
+  if (
+    method === 'POST' &&
+    pathname === '/admin/upload-audio'
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const match = String(body.dataUrl || '').match(
+      /^data:audio\/mpeg;base64,([A-Za-z0-9+/=]+)$/
+    );
+
+    if (!match) {
+      fail(400, 'Upload an MP3 file.');
+    }
+
+    const buf = Buffer.from(match[1], 'base64');
+
+    if (buf.length > 8 * 1024 * 1024) {
+      fail(413, 'Audio is larger than 8 MB.');
+    }
+
+    const magic = buf.subarray(0, 3);
+
+    const validMagic =
+      (magic[0] === 0x49 && magic[1] === 0x44 && magic[2] === 0x33) ||
+      (magic[0] === 0xff && (magic[1] & 0xe0) === 0xe0);
+
+    if (!validMagic) {
+      fail(400, 'That file is not a valid MP3.');
+    }
+
+    const name = crypto.randomBytes(8).toString('hex') + '.mp3';
+
+    const { put } = await blob();
+
+    await put(`${UPLOAD_PREFIX}${name}`, buf, {
+      access: 'private',
+      contentType: 'audio/mpeg',
       addRandomSuffix: false,
       allowOverwrite: false
     });

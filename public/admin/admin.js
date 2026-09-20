@@ -387,6 +387,17 @@
     const dataUrl = await readImage(file);
     return (await api('POST', '/api/admin/upload', { dataUrl })).src;
   }
+  async function uploadAudio(file) {
+    if (file.type !== 'audio/mpeg') throw new Error('Choose an MP3 file.');
+    if (file.size > 8 * 1024 * 1024) throw new Error('Audio is larger than 8 MB.');
+    const dataUrl = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = () => reject(new Error('That file could not be read.'));
+      r.readAsDataURL(file);
+    });
+    return (await api('POST', '/api/admin/upload-audio', { dataUrl })).src;
+  }
   const saveSection = async (name, data, msg) => { try { const r = await api('PUT', '/api/admin/' + name, data); D[name] = r[name]; toast(msg || 'Saved'); return true; } catch (e) { fail(e); return false; } };
 
   /* ---------- menu editor ---------- */
@@ -493,6 +504,7 @@
   }
   function viewSettings() {
     const S = JSON.parse(JSON.stringify(D.settings)), P = { current: '', next: '' };
+    if (!S.bgMusic) S.bgMusic = { enabled: false, src: '', volume: 15 };
     const id = k => 's' + k;
     const days = h('div', { style: 'display:flex;gap:16px;flex-wrap:wrap' }, DAYS.map((d, i) => h('label', { class: 'a-check' }, h('input', { type: 'checkbox', checked: S.closedDays.includes(i), onchange: e => { S.closedDays = e.target.checked ? [...S.closedDays, i] : S.closedDays.filter(x => x !== i); } }), d)));
     const logoBox = h('div', { class: 'a-card', style: 'max-width:220px' });
@@ -509,6 +521,26 @@
           S.heroLogo ? [' ', btn('Remove logo', () => { S.heroLogo = ''; drawLogo(); }, 'btn-sm btn-alt')] : null));
     }
     drawLogo();
+
+    const musicBox = h('div', { class: 'a-card', style: 'max-width:420px' });
+    function drawMusic() {
+      const file = h('input', { type: 'file', accept: 'audio/mpeg', class: 'vh', id: 'sMusicFile', onchange: async e => {
+        const f = e.target.files[0]; if (!f) return;
+        try { toast('Uploading track...'); S.bgMusic.src = await uploadAudio(f); drawMusic(); } catch (ex) { fail(ex); }
+      } });
+      const volLabel = h('span', { class: 'muted', text: S.bgMusic.volume + '%' });
+      musicBox.replaceChildren(
+        S.bgMusic.src ? h('audio', { controls: true, src: S.bgMusic.src, style: 'width:100%' }) : h('p', { class: 'muted', text: 'No track uploaded yet.' }),
+        file,
+        h('div', { style: 'margin-top:8px' },
+          h('label', { class: 'btn btn-sm btn-alt', for: 'sMusicFile', tabindex: 0, onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } } }, S.bgMusic.src ? 'Change track' : 'Upload track'),
+          S.bgMusic.src ? [' ', btn('Remove track', () => { S.bgMusic.src = ''; S.bgMusic.enabled = false; drawMusic(); }, 'btn-sm btn-alt')] : null),
+        h('div', { style: 'margin-top:14px' }, chk(S.bgMusic, 'enabled', 'Play for visitors')),
+        h('div', { class: 'field', style: 'margin-top:10px;max-width:260px' },
+          h('label', {}, 'Volume ', volLabel),
+          h('input', { type: 'range', min: 0, max: 60, value: S.bgMusic.volume, oninput: e => { S.bgMusic.volume = +e.target.value; volLabel.textContent = S.bgMusic.volume + '%'; } })));
+    }
+    drawMusic();
 
     const qrUrl = location.origin + '/menu';
     const qrPic = h('div', { class: 'pic', style: 'aspect-ratio:1;background:#fff' });
@@ -533,6 +565,9 @@
       h('h2', { class: 'a-h2', text: 'Branding' }),
       h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Shown in the home page hero in place of the salon photo. Leave empty to use the photo.' }),
       logoBox,
+      h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Background music' }),
+      h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Loops quietly for visitors. Browsers block sound until a visitor taps the on-site mute button once, and they can turn it off any time. Only upload music you have the rights to play publicly.' }),
+      musicBox,
       h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Share your menu' }),
       h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Print this at the counter or entrance. Scanning it opens your treatment menu, where clients can browse and pick services before booking.' }),
       h('div', { class: 'a-card', style: 'max-width:260px;text-align:center' },

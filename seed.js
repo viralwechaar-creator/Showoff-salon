@@ -133,7 +133,8 @@ function makeSeed() {
       closedDays: [],
       advanceDays: 60,
       invoiceFooter: 'Thank you for visiting Showoff Salon.',
-      heroLogo: ''
+      heroLogo: '',
+      bgMusic: { enabled: false, src: '', volume: 15 }
     },
     content: {
       heroTitle: 'Hair, skin and nails, taken seriously.',
