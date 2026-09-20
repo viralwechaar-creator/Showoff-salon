@@ -113,12 +113,12 @@
     if (!keepIdx) idx = 0;
     idx = Math.min(idx, Math.max(0, cats.length - 1));
     tabs.replaceChildren(...cats.map((c, i) => h('button', {
-      class: 'tab', role: 'tab', type: 'button', 'aria-selected': 'false', id: 'tab-' + c.id, onclick: () => goTo(i, true),
+      class: 'tab', role: 'tab', type: 'button', 'aria-selected': 'false', id: 'tab-' + c.id, onclick: () => goTo(i),
       text: c.name + (filter === 'all' && c.gender !== 'all' ? (c.gender === 'female' ? ' (women)' : ' (men)') : '')
     })));
     slider.replaceChildren(...cats.map((c, i) => {
       const two = c.priceLabels.length === 2;
-      return h('article', { class: 'slide', 'aria-roledescription': 'slide', 'aria-label': `${c.name}, ${i + 1} of ${cats.length}` },
+      return h('article', { class: 'slide', hidden: i !== idx, 'aria-roledescription': 'slide', 'aria-label': `${c.name}, ${i + 1} of ${cats.length}` },
         h('div', { class: 'slide-head' }, h('h3', { text: c.name }), h('p', { text: who(c.gender) + (c.note ? '. ' + c.note + '.' : '') })),
         h('div', { class: 'slide-list' },
           c.priceLabels.length ? h('div', { class: 'ph', 'aria-hidden': 'true' }, c.priceLabels.map(l => h('span', { text: l }))) : null,
@@ -131,38 +131,27 @@
             pickBtn(it)))));
     }));
     $$('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.g === filter));
-    slider.scrollLeft = idx * slider.clientWidth;
     syncMenu();
   }
   function syncMenu() {
     $('#menuCount').textContent = cats.length ? `${idx + 1} of ${cats.length}` : '';
     $$('.tab', tabs).forEach((t, i) => { t.setAttribute('aria-selected', i === idx); if (i === idx && t.scrollIntoView) { const l = t.offsetLeft - 8; if (Math.abs(tabs.scrollLeft - l) > tabs.clientWidth * .6 || t.offsetLeft < tabs.scrollLeft || t.offsetLeft + t.offsetWidth > tabs.scrollLeft + tabs.clientWidth) tabs.scrollTo({ left: l, behavior: 'smooth' }); } });
     prev.disabled = idx <= 0; next.disabled = idx >= cats.length - 1;
-    fitHeight();
   }
-  function fitHeight() {
-    const s = slider.children[idx];
-    if (s) slider.style.height = s.offsetHeight + 'px';
-  }
-  function goTo(i, smooth) {
-    idx = Math.max(0, Math.min(cats.length - 1, i));
-    slider.scrollTo({ left: idx * slider.clientWidth, behavior: smooth ? 'smooth' : 'auto' });
+  function goTo(i) {
+    const target = Math.max(0, Math.min(cats.length - 1, i));
+    if (slider.children[idx]) slider.children[idx].hidden = true;
+    idx = target;
+    if (slider.children[idx]) slider.children[idx].hidden = false;
     syncMenu();
   }
-  let raf;
-  slider.addEventListener('scroll', () => {
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => { const i = Math.round(slider.scrollLeft / slider.clientWidth); if (i !== idx) { idx = i; syncMenu(); } });
-  }, { passive: true });
-  prev.addEventListener('click', () => goTo(idx - 1, true));
-  next.addEventListener('click', () => goTo(idx + 1, true));
-  slider.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); goTo(idx + 1, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(idx - 1, true); } });
-  window.addEventListener('resize', () => { slider.scrollLeft = idx * slider.clientWidth; fitHeight(); });
+  prev.addEventListener('click', () => goTo(idx - 1));
+  next.addEventListener('click', () => goTo(idx + 1));
+  slider.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); goTo(idx + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(idx - 1); } });
   $$('.seg button').forEach(b => b.addEventListener('click', () => { filter = b.dataset.g; renderMenu(false); }));
 
   renderMenu(false);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeight);
 
   const wantCat = new URLSearchParams(location.search).get('cat');
-  if (wantCat) { const i = cats.findIndex(c => c.id === wantCat); if (i >= 0) goTo(i, false); }
+  if (wantCat) { const i = cats.findIndex(c => c.id === wantCat); if (i >= 0) goTo(i); }
 })();

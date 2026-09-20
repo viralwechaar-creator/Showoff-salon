@@ -173,9 +173,8 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 .tabs::-webkit-scrollbar { display: none; }
 .tab { flex: none; background: none; border: 0; padding: 12px 0; color: var(--muted); font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
 .tab[aria-selected="true"] { color: var(--plum); border-color: var(--plum); }
-.slider { display: flex; align-items: flex-start; transition: height .25s ease; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-top: clamp(28px, 4vw, 56px); overscroll-behavior-x: contain; }
-.slider::-webkit-scrollbar { display: none; }
-.slide { flex: 0 0 100%; scroll-snap-align: start; display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding-right: 1px; }
+.slider { margin-top: clamp(28px, 4vw, 56px); }
+.slide { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
 .slide-head { grid-column: 1 / 5; align-self: start; }
 .slide-head p { color: var(--muted); margin-top: 14px; font-size: 15px; }
 .slide-list { grid-column: 5 / 13; }
@@ -366,7 +365,6 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .disc { animation: none; }
-  .slider { transition: none; }
   .sr { opacity: 1; transform: none; transition: none; }
   .hero-mark { transition: none; }
   .svc-ticker-track { animation: none; }
