@@ -21,11 +21,22 @@
   nav.addEventListener('click', e => { if (e.target.closest('a')) setBurger(false); });
 
   /* ---------- hero + facts ---------- */
+  set('heroEyebrow', S.tagline);
   set('heroTitle', C.heroTitle);
   set('heroText', C.heroText);
-  const mark = $('.hero-mark');
-  mark.append(doodle('sparkle', 'gold hero-d1'), doodle('scissors', 'gold hero-d2'));
-  if (S.heroLogo) $('.disc img').src = S.heroLogo;
+
+  const heroMedia = $('#heroMedia');
+  if (site.gallery && site.gallery.length) {
+    heroMedia.replaceChildren(h('img', { src: site.gallery[0].src, alt: '' }));
+  } else {
+    heroMedia.replaceChildren(h('div', { class: 'hero-media-fallback' },
+      h('img', { src: S.heroLogo || '/assets/logo-cream.png', alt: '', width: 900, height: 900 })));
+  }
+
+  const heroTel = $('#heroTel');
+  if (S.phone) { heroTel.href = 'tel:' + S.phone.replace(/[^\d+]/g, ''); heroTel.textContent = S.phone; }
+  else if (S.whatsapp) { heroTel.href = waLink(S.whatsapp, 'Hi ' + S.salonName); heroTel.target = '_blank'; heroTel.rel = 'noopener'; heroTel.textContent = 'Message us'; }
+  else { heroTel.hidden = true; }
 
   const closed = (S.closedDays || []).map(d => DAYS[d]);
   const hoursText = fmt12(S.open) + ' to ' + fmt12(S.close);
