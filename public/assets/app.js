@@ -15,6 +15,7 @@
   set('brandName', S.salonName);
   document.title = S.salonName + ', ' + (S.address || 'Jodhpur');
   const menuBtn = $('#menuBtn'), navOverlay = $('#navOverlay'), nav = $('#nav');
+  $('#menuBtnIco').replaceChildren(icon('cut', 'ico-open'), icon('close', 'ico-close'));
   const setMenu = open => {
     menuBtn.setAttribute('aria-expanded', open);
     menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
@@ -77,9 +78,9 @@
   /* ---------- section text + head doodles ---------- */
   set('servicesText', C.servicesText); set('galleryText', C.galleryText);
   set('stylistsText', C.stylistsText); set('aboutTitle', C.aboutTitle); set('bookText', C.bookText);
-  const headDoodles = { services: ['comb', ''], menu: ['sparkle', 'gold'], gallery: ['mirror', ''], stylists: ['chair', ''] };
+  const headDoodles = { services: ['comb', ''], menu: ['sparkle', ''], gallery: ['mirror', ''], stylists: ['chair', ''] };
   for (const [id, [d, cls]] of Object.entries(headDoodles)) $('#' + id + ' .sec-head').append(doodle(d, cls));
-  $('.about').append(doodle('wave', 'gold'));
+  $('.about').append(doodle('wave'));
   $('.book-copy').append(doodle('polish'));
 
   /* ---------- helpers ---------- */
@@ -249,7 +250,7 @@
     const SEEN_KEY = 'ss_promo_seen';
     const promo = $('#promo');
     if (!promo) return;
-    $('.promo-in').prepend(doodle('spray', 'gold'));
+    $('.promo-in').prepend(doodle('spray'));
 
     let seen = true;
     try { seen = !!localStorage.getItem(SEEN_KEY); } catch {}

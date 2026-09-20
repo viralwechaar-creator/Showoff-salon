@@ -29,6 +29,7 @@
   addEventListener('keydown', e => { if (e.key === 'Escape' && navOverlay.classList.contains('open')) setMenu(false); });
   $('#navOverlayClose').replaceChildren(icon('close'));
   $('#navOverlayClose').addEventListener('click', () => setMenu(false));
+  $('#menuBtnIco').replaceChildren(icon('cut', 'ico-open'), icon('close', 'ico-close'));
 
   const hdr = $('#hdr');
   const syncHdrScroll = () => hdr.classList.toggle('is-scrolled', scrollY > 8);
@@ -57,7 +58,7 @@
   $('#footHours').replaceChildren(h('p', {}, h('span', { class: 'k', text: 'Hours' }), h('br'), hoursText, closed.length ? [h('br'), 'Closed on ' + closed.join(' and ')] : null));
 
   set('menuText', C.menuText);
-  $('#menu .sec-head').append(doodle('sparkle', 'gold'));
+  $('#menu .sec-head').append(doodle('sparkle'));
 
   /* ---------- helpers ---------- */
   const who = g => g === 'female' ? 'Women' : g === 'male' ? 'Men' : 'Women and men';

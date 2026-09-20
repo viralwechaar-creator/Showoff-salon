@@ -65,21 +65,13 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 .brand img { width: 40px; height: 40px; }
 
 .menu-btn { display: flex; align-items: center; gap: 14px; border: 0; background: none; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; padding: 8px 0; }
-/* a tiny pair of scissor blades doubling as the menu toggle: a finger-loop ring
-   pinned at the pivot, two tapered blades that lie flat (stacked) when closed and
-   swing open into an X, like scissors opening, when the menu is showing. */
-.menu-btn-ico { width: 28px; height: 22px; position: relative; flex: none; margin-left: 6px; }
-.menu-btn-ico .ring { position: absolute; left: 0; top: 50%; width: 10px; height: 10px; margin-top: -5px; border: 1.4px solid currentColor; border-radius: 50%; }
-.menu-btn-ico .blade {
-  position: absolute; left: 8px; width: 20px; height: 2px; top: 6px;
-  background: currentColor; border-radius: 0 1px 1px 0;
-  transform-origin: -3px 1px;
-  clip-path: polygon(0% 15%, 85% 35%, 100% 50%, 85% 65%, 0% 85%);
-  transition: transform .3s var(--ease), top .3s var(--ease);
-}
-.menu-btn-ico .blade:last-child { top: 14px; }
-.menu-btn[aria-expanded="true"] .menu-btn-ico .blade:first-child { top: 10px; transform: rotate(-40deg); }
-.menu-btn[aria-expanded="true"] .menu-btn-ico .blade:last-child { top: 10px; transform: rotate(40deg); }
+/* menu toggle: the real scissors glyph, crossfading to a close X when the nav opens */
+.menu-btn-ico { width: 24px; height: 24px; position: relative; flex: none; margin-left: 6px; color: inherit; }
+.menu-btn-ico svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .25s var(--ease), transform .3s var(--ease); }
+.menu-btn-ico .ico-open { opacity: 1; transform: rotate(0deg) scale(1); }
+.menu-btn-ico .ico-close { opacity: 0; transform: rotate(-45deg) scale(.6); }
+.menu-btn[aria-expanded="true"] .menu-btn-ico .ico-open { opacity: 0; transform: rotate(45deg) scale(.6); }
+.menu-btn[aria-expanded="true"] .menu-btn-ico .ico-close { opacity: 1; transform: rotate(0deg) scale(1); }
 
 /* full-screen nav overlay */
 .nav-overlay { position: fixed; inset: 0; z-index: 90; background: var(--plum); color: var(--cream); opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow-y: auto; }
