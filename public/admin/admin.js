@@ -478,6 +478,19 @@
   }
 
   /* ---------- settings ---------- */
+  function clearHistoryDialog() {
+    const F = { text: '' };
+    const body = h('div', {},
+      h('p', { text: 'This permanently deletes every booking, bill and expense, and resets invoice numbering back to the start. Clients are rebuilt from bookings and bills, so they clear too. Your menu, prices, stylists, gallery, website text and settings are not touched.' }),
+      h('p', { class: 'a-note', text: 'This cannot be undone. Download a backup first if you might need this data again.' }),
+      fld('Type DELETE to confirm', inp(F, 'text', { id: 'clearConfirm', autocomplete: 'off' }), 'clearConfirm'));
+    modal('Clear all bookings, bills and expenses', body, [{ label: 'Cancel', cls: 'btn-alt', value: 'no' }, {
+      label: 'Delete everything', cls: 'btn-danger', fn: async () => {
+        if (F.text.trim().toUpperCase() !== 'DELETE') { toast('Type DELETE to confirm', true); return false; }
+        try { await api('POST', '/api/admin/clear-history', {}); await load(); go('dashboard'); toast('All history cleared'); } catch (ex) { fail(ex); return false; }
+      }
+    }]);
+  }
   function viewSettings() {
     const S = JSON.parse(JSON.stringify(D.settings)), P = { current: '', next: '' };
     const id = k => 's' + k;
@@ -542,7 +555,12 @@
       h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Change password' }),
       h('div', { class: 'a-grid' }, fld('Current password', h('input', { type: 'password', id: 'pcur', autocomplete: 'current-password', oninput: e => { P.current = e.target.value; } }), 'pcur'),
         fld('New password (8 or more characters)', h('input', { type: 'password', id: 'pnew', autocomplete: 'new-password', oninput: e => { P.next = e.target.value; } }), 'pnew')),
-      btn('Change password', async () => { try { await api('POST', '/api/admin/password', P); P.current = P.next = ''; $('#pcur').value = $('#pnew').value = ''; toast('Password changed'); } catch (ex) { fail(ex); } }, 'btn-alt')),
+      btn('Change password', async () => { try { await api('POST', '/api/admin/password', P); P.current = P.next = ''; $('#pcur').value = $('#pnew').value = ''; toast('Password changed'); } catch (ex) { fail(ex); } }, 'btn-alt'),
+      h('h2', { class: 'a-h2', style: 'margin-top:32px', text: 'Danger zone' }),
+      h('p', { class: 'muted', style: 'margin-bottom:12px', text: 'Start fresh by permanently deleting all bookings, bills and expenses. Your menu, prices, stylists, gallery, website text and settings are not touched.' }),
+      h('div', { class: 'a-row-actions' },
+        h('a', { class: 'btn btn-alt', href: '/api/admin/export', download: 'showoff-salon-backup.json' }, 'Download backup first'),
+        btn('Clear all bookings, bills and expenses', clearHistoryDialog, 'btn-danger'))),
       sticky(btn('Save settings', async () => { if (await saveSection('settings', S)) await load(); })));
   }
 

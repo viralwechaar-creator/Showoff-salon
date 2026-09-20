@@ -1116,6 +1116,28 @@ async function handle(req, res) {
 
   if (
     method === 'POST' &&
+    pathname === '/admin/clear-history'
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const { db } = ctx();
+
+    db.bookings = [];
+    db.invoices = [];
+    db.expenses = [];
+    db.counters = { booking: 0, invoice: 0 };
+
+    await save();
+
+    return json(res, 200, {
+      ok: true
+    });
+  }
+
+  if (
+    method === 'POST' &&
     pathname === '/admin/reset'
   ) {
     if (!isAdmin(req)) {
