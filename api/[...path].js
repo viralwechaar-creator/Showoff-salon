@@ -131,7 +131,7 @@ function isConflict(e) {
 
   return (
     /Precondition|AlreadyExists/i.test(name) ||
-    /Precondition|AlreadyExists|condition|etag|ETag|conflict/i.test(msg)
+    /Precondition|AlreadyExists|already\s*exists|condition|etag|ETag|conflict/i.test(msg)
   );
 }
 
