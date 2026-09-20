@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treatment menu, Showoff Salon</title>
+<meta name="description" content="Full treatment menu and prices for Showoff Salon, Sardarpura, Jodhpur.">
+<meta name="theme-color" content="#391D21">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hdr" id="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href="/" aria-label="Showoff Salon, home">
+      <img src="/assets/logo-plum.png" alt="" width="40" height="40">
+      <span id="brandName">Showoff Salon</span>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navOverlay">
+      <span>Menu</span>
+      <span class="menu-btn-ico" id="menuBtnIco" aria-hidden="true"><span></span><span></span></span>
+    </button>
+  </div>
+</header>
+
+<div class="nav-overlay" id="navOverlay" aria-hidden="true">
+  <div class="wrap nav-overlay-in">
+    <nav class="nav-links" id="nav" aria-label="Main">
+      <a href="/#services">Services</a>
+      <a href="/menu">Menu</a>
+      <a href="/#gallery">Gallery</a>
+      <a href="/#stylists">Our hairstylists</a>
+      <a href="/#about">About us</a>
+      <a href="/#book">Book appointment</a>
+    </nav>
+    <div class="nav-overlay-foot">
+      <div class="nav-overlay-contact">
+        <p id="navAddress"></p>
+        <a class="link" id="navEmail" href=""></a>
+      </div>
+      <div class="nav-overlay-meta">
+        <span id="navCopyright"></span>
+        <a id="navInsta" href="" target="_blank" rel="noopener"></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <!-- Treatment menu -->
+  <section class="sec sec-tint" id="menu">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Treatment menu</h2>
+        <p id="menuText"></p>
+      </div>
+      <div class="menu-bar">
+        <div class="seg" role="group" aria-label="Show menu for">
+          <button data-g="all" aria-pressed="true">Everything</button>
+          <button data-g="female" aria-pressed="false">Women</button>
+          <button data-g="male" aria-pressed="false">Men</button>
+        </div>
+        <div class="menu-nav">
+          <span class="count" id="menuCount" aria-live="polite"></span>
+          <button class="sq" id="prevSlide" aria-label="Previous menu page"></button>
+          <button class="sq" id="nextSlide" aria-label="Next menu page"></button>
+        </div>
+      </div>
+      <div class="tabs" id="menuTabs" role="tablist" aria-label="Menu pages"></div>
+      <div class="slider" id="slider" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Treatment menu"></div>
+      <p class="legend"><span id="legendStar"></span> Most popular</p>
+    </div>
+  </section>
+
+  <!-- Book CTA -->
+  <section class="sec menu-book-cta">
+    <div class="wrap">
+      <p class="lead">Ready when you are.</p>
+      <a class="btn" href="/#book">Book appointment</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div>
+      <img src="/assets/logo-cream.png" alt="Showoff Salon" width="72" height="72">
+    </div>
+    <div id="footContact"></div>
+    <div id="footHours"></div>
+    <div class="foot-end"><a href="/admin">Staff login</a></div>
+  </div>
+</footer>
+
+<script src="/assets/dom.js"></script>
+<script src="/assets/menu-page.js"></script>
+</body>
+</html>

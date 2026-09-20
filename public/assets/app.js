@@ -73,7 +73,7 @@
   $('#facts').replaceChildren(...facts.map(([k, v]) => h('div', {}, h('dt', { text: k }), h('dd', {}, v))));
 
   /* ---------- section text + head doodles ---------- */
-  set('servicesText', C.servicesText); set('menuText', C.menuText); set('galleryText', C.galleryText);
+  set('servicesText', C.servicesText); set('galleryText', C.galleryText);
   set('stylistsText', C.stylistsText); set('aboutTitle', C.aboutTitle); set('bookText', C.bookText);
   const headDoodles = { services: ['comb', ''], menu: ['sparkle', 'gold'], gallery: ['mirror', ''], stylists: ['scissors', ''] };
   for (const [id, [d, cls]] of Object.entries(headDoodles)) $('#' + id + ' .sec-head').append(doodle(d, cls));
@@ -83,79 +83,15 @@
   /* ---------- helpers ---------- */
   const who = g => g === 'female' ? 'Women' : g === 'male' ? 'Men' : 'Women and men';
   const minPrice = c => Math.min(...c.items.flatMap(i => [i.price, i.price2]).filter(v => v != null));
-  const star = () => h('span', {}, icon('star'), h('span', { class: 'vh', text: 'Most popular' }));
 
   /* ---------- services list ---------- */
   function renderServices() {
     $('#svcList').replaceChildren(...site.menu.map(c => h('li', {},
-      h('button', { class: 'svc', type: 'button', onclick: () => goToCategory(c.id), 'aria-label': `${c.name}, ${who(c.gender)}. Open in menu` },
+      h('a', { class: 'svc', href: '/menu?cat=' + encodeURIComponent(c.id), 'aria-label': `${c.name}, ${who(c.gender)}. See full menu` },
         h('span', { class: 'svc-name', text: c.name }),
         h('span', { class: 'svc-who', text: who(c.gender) }),
         h('span', { class: 'svc-count', text: c.items.length + (c.items.length === 1 ? ' treatment' : ' treatments') }),
         h('span', { class: 'svc-from', text: 'from ' + inr(minPrice(c)) })))));
-  }
-
-  /* ---------- menu slider ---------- */
-  let filter = 'all', idx = 0, cats = [];
-  const slider = $('#slider'), tabs = $('#menuTabs'), prev = $('#prevSlide'), next = $('#nextSlide');
-  prev.replaceChildren(icon('arrow-l')); next.replaceChildren(icon('arrow-r'));
-  $('#legendStar').replaceChildren(icon('star'));
-
-  function renderMenu(keepIdx) {
-    cats = site.menu.filter(c => filter === 'all' || c.gender === 'all' || c.gender === filter);
-    if (!keepIdx) idx = 0;
-    idx = Math.min(idx, Math.max(0, cats.length - 1));
-    tabs.replaceChildren(...cats.map((c, i) => h('button', {
-      class: 'tab', role: 'tab', type: 'button', 'aria-selected': 'false', id: 'tab-' + c.id, onclick: () => goTo(i, true),
-      text: c.name + (filter === 'all' && c.gender !== 'all' ? (c.gender === 'female' ? ' (women)' : ' (men)') : '')
-    })));
-    slider.replaceChildren(...cats.map((c, i) => {
-      const two = c.priceLabels.length === 2;
-      return h('article', { class: 'slide', 'aria-roledescription': 'slide', 'aria-label': `${c.name}, ${i + 1} of ${cats.length}` },
-        h('div', { class: 'slide-head' }, h('h3', { text: c.name }), h('p', { text: who(c.gender) + (c.note ? '. ' + c.note + '.' : '') })),
-        h('div', { class: 'slide-list' },
-          c.priceLabels.length ? h('div', { class: 'ph', 'aria-hidden': 'true' }, c.priceLabels.map(l => h('span', { text: l }))) : null,
-          c.items.map(it => h('div', { class: 'item' },
-            h('div', { class: 'item-name' }, it.name, it.popular ? star() : null),
-            it.desc ? h('div', { class: 'item-desc', text: it.desc }) : null,
-            h('div', { class: 'prices' },
-              h('span', { class: 'price' + (two ? '' : ''), text: inr(it.price) }),
-              two ? h('span', { class: 'price' + (it.price2 == null ? ' none' : ''), text: it.price2 == null ? 'n/a' : inr(it.price2) }) : null)))));
-    }));
-    $$('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.g === filter));
-    slider.scrollLeft = idx * slider.clientWidth;
-    syncMenu();
-  }
-  function syncMenu() {
-    $('#menuCount').textContent = cats.length ? `${idx + 1} of ${cats.length}` : '';
-    $$('.tab', tabs).forEach((t, i) => { t.setAttribute('aria-selected', i === idx); if (i === idx && t.scrollIntoView) { const l = t.offsetLeft - 8; if (Math.abs(tabs.scrollLeft - l) > tabs.clientWidth * .6 || t.offsetLeft < tabs.scrollLeft || t.offsetLeft + t.offsetWidth > tabs.scrollLeft + tabs.clientWidth) tabs.scrollTo({ left: l, behavior: 'smooth' }); } });
-    prev.disabled = idx <= 0; next.disabled = idx >= cats.length - 1;
-    fitHeight();
-  }
-  function fitHeight() {
-    const s = slider.children[idx];
-    if (s) slider.style.height = s.offsetHeight + 'px';
-  }
-  function goTo(i, smooth) {
-    idx = Math.max(0, Math.min(cats.length - 1, i));
-    slider.scrollTo({ left: idx * slider.clientWidth, behavior: smooth ? 'smooth' : 'auto' });
-    syncMenu();
-  }
-  let raf;
-  slider.addEventListener('scroll', () => {
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => { const i = Math.round(slider.scrollLeft / slider.clientWidth); if (i !== idx) { idx = i; syncMenu(); } });
-  }, { passive: true });
-  prev.addEventListener('click', () => goTo(idx - 1, true));
-  next.addEventListener('click', () => goTo(idx + 1, true));
-  slider.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); goTo(idx + 1, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(idx - 1, true); } });
-  window.addEventListener('resize', () => { slider.scrollLeft = idx * slider.clientWidth; fitHeight(); });
-  $$('.seg button').forEach(b => b.addEventListener('click', () => { filter = b.dataset.g; renderMenu(false); }));
-  function goToCategory(id) {
-    let i = cats.findIndex(c => c.id === id);
-    if (i < 0) { filter = 'all'; renderMenu(false); i = cats.findIndex(c => c.id === id); }
-    $('#menu').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    goTo(i, false);
   }
 
   /* ---------- gallery + lightbox ---------- */
@@ -269,8 +205,7 @@
     $('#bookPanel').scrollIntoView({ block: 'center' });
   }
 
-  renderServices(); renderMenu(false); renderGallery();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeight);
+  renderServices(); renderGallery();
 
   /* ---------- scroll reveal + hero parallax ---------- */
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
