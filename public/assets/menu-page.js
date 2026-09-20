@@ -29,7 +29,7 @@
   addEventListener('keydown', e => { if (e.key === 'Escape' && navOverlay.classList.contains('open')) setMenu(false); });
   $('#navOverlayClose').replaceChildren(icon('close'));
   $('#navOverlayClose').addEventListener('click', () => setMenu(false));
-  $('#menuBtnIco').replaceChildren(icon('cut', 'ico-open'), icon('close', 'ico-close'));
+  $('#menuBtnIco').replaceChildren(icon('shears', 'ico-open'), icon('close', 'ico-close'));
 
   const hdr = $('#hdr');
   const syncHdrScroll = () => hdr.classList.toggle('is-scrolled', scrollY > 8);

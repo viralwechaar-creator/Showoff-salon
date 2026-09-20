@@ -15,7 +15,7 @@
   set('brandName', S.salonName);
   document.title = S.salonName + ', ' + (S.address || 'Jodhpur');
   const menuBtn = $('#menuBtn'), navOverlay = $('#navOverlay'), nav = $('#nav');
-  $('#menuBtnIco').replaceChildren(icon('cut', 'ico-open'), icon('close', 'ico-close'));
+  $('#menuBtnIco').replaceChildren(icon('shears', 'ico-open'), icon('close', 'ico-close'));
   const setMenu = open => {
     menuBtn.setAttribute('aria-expanded', open);
     menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');

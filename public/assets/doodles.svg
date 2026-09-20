@@ -30,4 +30,11 @@
   <symbol id="razor" viewBox="0 0 64 64"><g><rect x="14" y="10" width="36" height="14" rx="4"/><path d="M22 17h20"/><path d="M32 24v30"/><path d="M24 54h16"/></g></symbol>
   <symbol id="spray" viewBox="0 0 64 64"><g><rect x="18" y="24" width="22" height="34" rx="6"/><path d="M24 24v-8h8v8"/><path d="M32 12h14"/><path d="M46 8v8l8-4Z"/><path d="M50 8 58 4M53 12l8 0M50 16l7 3" opacity=".55"/></g></symbol>
   <symbol id="chair" viewBox="0 0 64 64"><g><path d="M14 10c-4 0-6-3-6-6"/><path d="M14 10h30v22c0 3-2 5-5 5H19c-3 0-5-2-5-5Z"/><path d="M19 37v9M45 37v9"/><path d="M14 46h36"/><path d="M32 46v10"/><path d="M20 56h24"/></g></symbol>
+  <symbol id="shears" viewBox="0 0 64 64">
+    <circle cx="18" cy="44" r="9" fill="none" stroke="currentColor" stroke-width="4"/>
+    <circle cx="28" cy="52" r="9" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path fill="currentColor" stroke="none" d="M24 41 30 45 59 4Z"/>
+    <path fill="currentColor" stroke="none" d="M22 43 28 47 46 16Z"/>
+    <circle cx="26" cy="43" r="3" fill="currentColor" stroke="none"/>
+  </symbol>
 </svg>
