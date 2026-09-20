@@ -105,6 +105,9 @@ details.a-card[open] > summary { margin-bottom: 16px; }
 dialog.a-dialog { border: 0; border-radius: 18px; padding: 28px; width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; }
 dialog.a-dialog::backdrop { background: rgba(57,29,33,.6); }
 dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
+.a-dialog-close { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border-radius: 999px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; transition: background .2s var(--ease), color .2s var(--ease); }
+.a-dialog-close .ico { width: 18px; height: 18px; }
+.a-dialog-close:hover { background: var(--tint); color: var(--plum); }
 .a-dialog-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 .a-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--plum); color: #fff; padding: 12px 20px; border-radius: 99px; opacity: 0; pointer-events: none; transition: .2s; z-index: 200; max-width: calc(100vw - 32px); }
 .a-toast.show { opacity: 1; transform: translate(-50%, 0); }

@@ -27,6 +27,8 @@
   nav.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
   navOverlay.addEventListener('click', e => { if (e.target === navOverlay) setMenu(false); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && navOverlay.classList.contains('open')) setMenu(false); });
+  $('#navOverlayClose').replaceChildren(icon('close'));
+  $('#navOverlayClose').addEventListener('click', () => setMenu(false));
 
   const hdr = $('#hdr');
   const syncHdrScroll = () => hdr.classList.toggle('is-scrolled', scrollY > 8);

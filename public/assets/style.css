@@ -73,6 +73,9 @@ h3 { font-weight: 500; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.02; l
 /* full-screen nav overlay */
 .nav-overlay { position: fixed; inset: 0; z-index: 90; background: var(--plum); color: var(--cream); opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow-y: auto; }
 .nav-overlay.open { opacity: 1; visibility: visible; }
+.nav-overlay-close { position: fixed; top: 12px; right: var(--pad); width: 44px; height: 44px; border-radius: 999px; border: 0; background: none; color: var(--cream); display: grid; place-items: center; transition: background .2s var(--ease); }
+.nav-overlay-close .ico { width: 20px; height: 20px; }
+.nav-overlay-close:hover { background: rgba(243,230,200,.12); }
 .nav-overlay-in { min-height: 100%; padding-top: 120px; padding-bottom: 40px; display: grid; align-content: space-between; gap: 60px; }
 .nav-links { display: grid; gap: 6px; }
 .nav-links a { text-decoration: none; color: var(--cream); font-size: clamp(32px, 6vw, 72px); font-weight: 500; letter-spacing: -.02em; padding: 10px 0; border-bottom: 1px solid rgba(243,230,200,.15); transition: color .2s var(--ease), padding-left .25s var(--ease); }

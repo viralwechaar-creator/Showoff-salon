@@ -81,13 +81,16 @@
 
   function openMore() {
     const pending = D.bookings.filter(b => b.status === 'pending').length;
-    const d = h('dialog', { class: 'a-dialog' }, h('h2', { text: 'More' }),
+    const d = h('dialog', { class: 'a-dialog' },
+      h('button', { type: 'button', class: 'a-dialog-close', 'aria-label': 'Close', onclick: () => d.close() }, icon('close')),
+      h('h2', { text: 'More' }),
       h('div', { class: 'a-more-list' },
         SECONDARY.map(k => h('button', { type: 'button', 'aria-current': k === current ? 'page' : null, onclick: () => { d.close(); go(k); } },
           icon(ICONS[k]), TITLES[k], k === 'bookings' && pending ? h('span', { class: 'badge', text: pending }) : null)),
         h('div', { class: 'a-more-sep' }),
         h('a', { href: '/', target: '_blank', rel: 'noopener' }, icon('doc'), 'View website'),
         h('button', { type: 'button', onclick: () => { d.close(); $('#logout').click(); } }, icon('logout'), 'Sign out')));
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
     d.addEventListener('close', () => d.remove());
     document.body.append(d); d.showModal();
   }
