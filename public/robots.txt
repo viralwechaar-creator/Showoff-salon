@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /i/
+
+Sitemap: https://showoff-salon.vercel.app/sitemap.xml

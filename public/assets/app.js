@@ -14,6 +14,28 @@
   /* ---------- header + full-screen nav ---------- */
   set('brandName', S.salonName);
   document.title = S.salonName + ', ' + (S.address || 'Jodhpur');
+
+  /* ---------- structured data for search engines ---------- */
+  (function () {
+    const DAYS_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const openDays = DAYS_FULL.filter((_, i) => !(S.closedDays || []).includes(i));
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'HairSalon',
+      name: S.salonName,
+      image: location.origin + '/assets/og-image.jpg',
+      url: location.origin,
+      address: { '@type': 'PostalAddress', streetAddress: S.address || '', addressCountry: 'IN' }
+    };
+    if (S.phone) ld.telephone = S.phone;
+    if (openDays.length && S.open && S.close) {
+      ld.openingHoursSpecification = openDays.map(day => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: day, opens: S.open, closes: S.close }));
+    }
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(ld);
+    document.head.appendChild(script);
+  })();
   const menuBtn = $('#menuBtn'), navOverlay = $('#navOverlay'), nav = $('#nav');
   $('#menuBtnIco').replaceChildren(icon('shears', 'ico-open'), icon('close', 'ico-close'));
   let navScrollY = 0;
