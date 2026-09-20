@@ -84,17 +84,17 @@
   const who = g => g === 'female' ? 'Women' : g === 'male' ? 'Men' : 'Women and men';
   const minPrice = c => Math.min(...c.items.flatMap(i => [i.price, i.price2]).filter(v => v != null));
 
-  /* ---------- services grid ---------- */
+  /* ---------- services summary ---------- */
   function renderServices() {
-    $('#svcList').replaceChildren(...site.menu.map((c, i) => h('a', {
-      class: 'svc-card', href: '/menu?cat=' + encodeURIComponent(c.id), 'aria-label': `${c.name}, ${who(c.gender)}. See full menu`
-    },
-      h('span', { class: 'svc-card-top' },
-        h('span', { class: 'svc-card-no', text: String(i + 1).padStart(2, '0') }),
-        h('span', { class: 'svc-card-arrow' }, icon('arrow-r'))),
-      h('span', { class: 'svc-card-name', text: c.name }),
-      h('span', { class: 'svc-card-meta', text: who(c.gender) + ' · ' + c.items.length + (c.items.length === 1 ? ' treatment' : ' treatments') }),
-      h('span', { class: 'svc-card-price', text: 'from ' + inr(minPrice(c)) }))));
+    const catCount = site.menu.length;
+    const itemCount = site.menu.reduce((a, c) => a + c.items.length, 0);
+    const lowest = Math.min(...site.menu.map(minPrice));
+    $('#svcStats').replaceChildren(
+      h('div', {}, h('dt', { text: catCount === 1 ? 'Category' : 'Categories' }), h('dd', { text: catCount })),
+      h('div', {}, h('dt', { text: 'Treatments' }), h('dd', { text: itemCount + '+' })),
+      h('div', {}, h('dt', { text: 'Starting at' }), h('dd', { text: inr(lowest) })));
+    const names = site.menu.map(c => c.name);
+    $('#svcTicker').replaceChildren(h('div', { class: 'svc-ticker-track' }, [...names, ...names].map(n => h('span', { text: n }))));
   }
 
   /* ---------- gallery + lightbox ---------- */
@@ -226,9 +226,8 @@
 
   /* ---------- scroll reveal + hero parallax ---------- */
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const targets = $$('.sec-head, .svc-card, .gal > *, .team .person, .about-body, .panel, .facts > div');
+    const targets = $$('.sec-head, .gal > *, .team .person, .about-body, .panel, .facts > div');
     targets.forEach(el => el.classList.add('sr'));
-    $$('.svc-card').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 40, 400) + 'ms'; });
     $$('.gal > *').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 300) + 'ms'; });
     $$('.team .person').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 80, 320) + 'ms'; });
     $$('.facts > div').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 240) + 'ms'; });
