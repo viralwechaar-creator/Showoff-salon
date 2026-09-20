@@ -3,7 +3,8 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/i/:token", "destination": "/invoice.html" },
-    { "source": "/uploads/:name", "destination": "/api/uploads/:name" }
+    { "source": "/uploads/:name", "destination": "/api/uploads/:name" },
+    { "source": "/api/:path*", "destination": "/api/[...path]" }
   ],
   "headers": [
     {
