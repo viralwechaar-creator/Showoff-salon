@@ -353,7 +353,7 @@ function validTime(value) {
   return /^\d{2}:\d{2}$/.test(value);
 }
 
-async function makeBooking(body) {
+async function makeBooking(body, isAdminBooking = false) {
   const { db } = ctx();
 
   const name = cleanString(body.name, 100);
@@ -416,7 +416,7 @@ async function makeBooking(body) {
     note,
     services,
     price,
-    status: 'pending',
+    status: isAdminBooking ? 'confirmed' : 'pending',
     createdAt: new Date().toISOString()
   };
 
@@ -425,6 +425,127 @@ async function makeBooking(body) {
   await save(true);
 
   return rec;
+}
+
+function clientsList() {
+  const { db } = ctx();
+  const map = new Map();
+
+  const get = (phone, name, email) => {
+    if (!phone) return null;
+
+    if (!map.has(phone)) {
+      map.set(phone, {
+        phone,
+        name,
+        email: email || '',
+        bookings: 0,
+        visits: 0,
+        billed: 0,
+        last: ''
+      });
+    }
+
+    const c = map.get(phone);
+
+    if (name) c.name = name;
+    if (email && !c.email) c.email = email;
+
+    return c;
+  };
+
+  (db.bookings || []).forEach(b => {
+    const c = get(b.phone, b.name, b.email);
+    if (c) {
+      c.bookings++;
+      c.last = c.last > b.date ? c.last : b.date;
+    }
+  });
+
+  (db.invoices || [])
+    .filter(i => !i.void)
+    .forEach(i => {
+      const c = get(i.client.phone, i.client.name, i.client.email);
+      if (c) {
+        c.visits++;
+        c.billed = Math.round((c.billed + i.total) * 100) / 100;
+        c.last = c.last > i.date ? c.last : i.date;
+      }
+    });
+
+  return [...map.values()].sort((a, b) => (b.last || '').localeCompare(a.last || ''));
+}
+
+async function makeInvoice(body) {
+  const { db } = ctx();
+
+  const client = body.client || {};
+  const name = cleanString(client.name, 80);
+
+  if (name.length < 2) fail(400, 'Enter the client name.');
+
+  const phone = client.phone ? cleanPhone(client.phone) : '';
+
+  if (client.phone && !phone) fail(400, 'Enter a valid phone number.');
+
+  const items = (Array.isArray(body.items) ? body.items : [])
+    .slice(0, 40)
+    .map(i => ({
+      name: cleanString(i.name, 120),
+      qty: Math.max(1, Math.min(99, Math.round(Number(i.qty) || 1))),
+      price: Math.round((Number(i.price) || 0) * 100) / 100
+    }))
+    .filter(i => i.name);
+
+  if (!items.length) fail(400, 'Add at least one service.');
+
+  const subtotal = Math.round(
+    items.reduce((sum, i) => sum + i.qty * i.price, 0) * 100
+  ) / 100;
+
+  const discountType = body.discount && body.discount.type === 'percent' ? 'percent' : 'flat';
+  const discountValueMax = discountType === 'percent' ? 100 : 1e6;
+  const discountValue = Math.max(
+    0,
+    Math.min(discountValueMax, Number(body.discount && body.discount.value) || 0)
+  );
+
+  const discountAmt = Math.min(
+    subtotal,
+    discountType === 'percent'
+      ? Math.round((subtotal * discountValue / 100) * 100) / 100
+      : Math.round(discountValue * 100) / 100
+  );
+
+  if (!db.invoices) db.invoices = [];
+  if (!db.counters) db.counters = { booking: 0, invoice: 0 };
+
+  const inv = {
+    id: crypto.randomUUID(),
+    token: crypto.randomBytes(16).toString('hex'),
+    no: 'SS-' + String(++db.counters.invoice).padStart(4, '0'),
+    date: validDate(body.date) ? cleanString(body.date, 10) : new Date().toISOString().slice(0, 10),
+    client: { name, phone, email: cleanString(client.email, 120) },
+    items,
+    subtotal,
+    discount: { type: discountType, value: discountValue },
+    discountAmt,
+    total: Math.round((subtotal - discountAmt) * 100) / 100,
+    servedBy: cleanString(body.servedBy, 80),
+    note: cleanString(body.note, 300),
+    bookingId: cleanString(body.bookingId, 40),
+    void: false,
+    createdAt: new Date().toISOString()
+  };
+
+  db.invoices.push(inv);
+
+  const linkedBooking = (db.bookings || []).find(b => b.id === inv.bookingId);
+  if (linkedBooking) linkedBooking.status = 'completed';
+
+  await save(true);
+
+  return inv;
 }
 
 async function handle(req, res) {
@@ -543,7 +664,9 @@ async function handle(req, res) {
       content: db.content,
       stylists: db.stylists || [],
       gallery: db.gallery || [],
-      bookings: db.bookings || []
+      bookings: db.bookings || [],
+      invoices: db.invoices || [],
+      clients: clientsList()
     });
   }
 
@@ -714,6 +837,191 @@ async function handle(req, res) {
     }
 
     await save();
+
+    return json(res, 200, {
+      ok: true
+    });
+  }
+
+  if (
+    method === 'POST' &&
+    pathname === '/admin/bookings'
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const booking = await makeBooking(body, true);
+
+    return json(res, 201, {
+      ok: true,
+      booking
+    });
+  }
+
+  if (
+    method === 'POST' &&
+    pathname === '/admin/invoices'
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const invoice = await makeInvoice(body);
+
+    return json(res, 201, {
+      ok: true,
+      invoice
+    });
+  }
+
+  if (
+    method === 'DELETE' &&
+    pathname.startsWith('/admin/invoices/')
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const id = decodeURIComponent(
+      pathname.slice('/admin/invoices/'.length)
+    );
+
+    const invoice = (ctx().db.invoices || []).find(
+      x => String(x.id) === id
+    );
+
+    if (!invoice) {
+      fail(404, 'Invoice not found.');
+    }
+
+    invoice.void = true;
+
+    await save();
+
+    return json(res, 200, {
+      ok: true
+    });
+  }
+
+  if (
+    method === 'GET' &&
+    /^\/invoice\/[a-f0-9]{32}$/.test(pathname)
+  ) {
+    const token = pathname.slice('/invoice/'.length);
+
+    const invoice = (ctx().db.invoices || []).find(
+      x => x.token === token && !x.void
+    );
+
+    if (!invoice) {
+      fail(404, 'Invoice not found.');
+    }
+
+    const { settings } = ctx().db;
+
+    return json(res, 200, {
+      invoice,
+      salon: {
+        salonName: settings.salonName,
+        address: settings.address,
+        phone: settings.phone,
+        email: settings.email,
+        instagram: settings.instagram,
+        invoiceFooter: settings.invoiceFooter
+      }
+    });
+  }
+
+  if (
+    method === 'POST' &&
+    pathname === '/admin/upload'
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const match = String(body.dataUrl || '').match(
+      /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/
+    );
+
+    if (!match) {
+      fail(400, 'Upload a JPG, PNG or WebP image.');
+    }
+
+    const buf = Buffer.from(match[2], 'base64');
+
+    if (buf.length > 4 * 1024 * 1024) {
+      fail(413, 'Image is larger than 4 MB.');
+    }
+
+    const magic = buf.subarray(0, 12);
+
+    const validMagic =
+      (match[1] === 'jpeg' && magic[0] === 0xff && magic[1] === 0xd8) ||
+      (match[1] === 'png' && magic.subarray(1, 4).toString() === 'PNG') ||
+      (match[1] === 'webp' &&
+        magic.subarray(0, 4).toString() === 'RIFF' &&
+        magic.subarray(8, 12).toString() === 'WEBP');
+
+    if (!validMagic) {
+      fail(400, 'That file is not a valid image.');
+    }
+
+    const name =
+      crypto.randomBytes(8).toString('hex') +
+      '.' +
+      (match[1] === 'jpeg' ? 'jpg' : match[1]);
+
+    const { put } = await blob();
+
+    await put(`${UPLOAD_PREFIX}${name}`, buf, {
+      access: 'private',
+      contentType: `image/${match[1]}`,
+      addRandomSuffix: false,
+      allowOverwrite: false
+    });
+
+    return json(res, 201, {
+      ok: true,
+      src: `/uploads/${name}`
+    });
+  }
+
+  if (
+    method === 'POST' &&
+    pathname === '/admin/password'
+  ) {
+    if (!isAdmin(req)) {
+      fail(401, 'Unauthorized.');
+    }
+
+    const current = String(body.current || '');
+    const next = String(body.next || '');
+
+    const admin = ctx().admin;
+
+    const currentHash = crypto
+      .createHash('sha256')
+      .update(current)
+      .digest('hex');
+
+    if (!admin || !admin.passwordHash || currentHash !== admin.passwordHash) {
+      fail(400, 'Current password is wrong.');
+    }
+
+    if (next.length < 8) {
+      fail(400, 'New password must be at least 8 characters.');
+    }
+
+    admin.passwordHash = crypto
+      .createHash('sha256')
+      .update(next)
+      .digest('hex');
+
+    await saveAdmin();
+
+    setSession(res, true);
 
     return json(res, 200, {
       ok: true
