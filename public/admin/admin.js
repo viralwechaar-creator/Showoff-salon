@@ -110,14 +110,12 @@
   }
   function invoiceMessage(inv) {
     const lines = inv.items.map(i => `✨ ${i.name}${i.qty > 1 ? ' x' + i.qty : ''}: ${inr(i.qty * i.price)}`);
-    const feedback = D.settings.whatsapp ? waLink(D.settings.whatsapp, `Hi ${D.settings.salonName}, sharing my feedback on my recent visit: `) : null;
     return [
       `Hi ${inv.client.name}, thank you for visiting ${D.settings.salonName}! \u{1F49B}`, '',
       `\u{1F9FE} *Invoice ${inv.no}* · ${fmtDate(inv.date)}`, ...lines,
       inv.discountAmt > 0 ? `\u{1F3F7}️ Discount: -${inr(inv.discountAmt)}` : null,
       `\u{1F4B0} *Total: ${inr(inv.total)}*`, '',
       `\u{1F4C4} Invoice: ${location.origin}/i/${inv.token}`,
-      feedback ? `⭐ Loved your visit? Tap to share feedback: ${feedback}` : null,
     ].filter(x => x !== null).join('\n');
   }
   const waBtn = (label, phone, text, cls) => phone
