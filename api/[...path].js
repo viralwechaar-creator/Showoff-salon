@@ -332,6 +332,14 @@ function validTime(value) {
   return /^\d{2}:\d{2}$/.test(value);
 }
 
+function invoiceToken(existingInvoices) {
+  let token;
+  do {
+    token = crypto.randomBytes(4).toString('hex');
+  } while ((existingInvoices || []).some(x => x.token === token));
+  return token;
+}
+
 async function makeBooking(body, isAdminBooking = false) {
   const { db } = ctx();
 
@@ -507,7 +515,7 @@ async function makeInvoice(body) {
 
   const inv = {
     id: crypto.randomUUID(),
-    token: crypto.randomBytes(16).toString('hex'),
+    token: invoiceToken(db.invoices),
     no: 'SS-' + String(++db.counters.invoice).padStart(4, '0'),
     date: validDate(body.date) ? cleanString(body.date, 10) : todayStr(),
     client: { name, phone, email: cleanString(client.email, 120) },
@@ -1030,7 +1038,7 @@ async function handle(req, res) {
 
   if (
     method === 'GET' &&
-    /^\/invoice\/[a-f0-9]{32}$/.test(pathname)
+    /^\/invoice\/[a-f0-9]{8,32}$/.test(pathname)
   ) {
     const token = pathname.slice('/invoice/'.length);
 
