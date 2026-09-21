@@ -125,12 +125,12 @@
     return h('div', { class: 'a-scroll' }, h('table', { class: 'a-table' },
       h('thead', {}, h('tr', {}, ['When', 'Client', 'Services', 'Status', ''].map(t => h('th', { text: t })))),
       h('tbody', {}, list.map(b => h('tr', {},
-        h('td', {}, h('b', { text: fmtDate(b.date, { weekday: 'short', day: 'numeric', month: 'short' }) }), h('br'), fmt12(b.time), h('br'), h('span', { class: 'muted', text: b.ref })),
-        h('td', {}, b.name, h('br'), h('span', { class: 'muted', text: b.phone }), b.email ? [h('br'), h('span', { class: 'muted', text: b.email })] : null, b.note ? [h('br'), h('span', { class: 'muted', text: 'Note: ' + b.note })] : null),
-        h('td', { text: b.services.map(s => s.name).join(', ') || 'Not chosen' }),
-        h('td', {}, h('select', { class: 'a-select', 'aria-label': 'Status for ' + b.name, onchange: async e => { try { await api('PATCH', '/api/admin/bookings/' + b.id, { status: e.target.value }); await load(); rerender(); toast('Status updated'); } catch (ex) { fail(ex); } } },
+        h('td', { 'data-label': 'When' }, h('b', { text: fmtDate(b.date, { weekday: 'short', day: 'numeric', month: 'short' }) }), h('br'), fmt12(b.time), h('br'), h('span', { class: 'muted', text: b.ref })),
+        h('td', { 'data-label': 'Client' }, b.name, h('br'), h('span', { class: 'muted', text: b.phone }), b.email ? [h('br'), h('span', { class: 'muted', text: b.email })] : null, b.note ? [h('br'), h('span', { class: 'muted', text: 'Note: ' + b.note })] : null),
+        h('td', { 'data-label': 'Services', text: b.services.map(s => s.name).join(', ') || 'Not chosen' }),
+        h('td', { 'data-label': 'Status' }, h('select', { class: 'a-select', 'aria-label': 'Status for ' + b.name, onchange: async e => { try { await api('PATCH', '/api/admin/bookings/' + b.id, { status: e.target.value }); await load(); rerender(); toast('Status updated'); } catch (ex) { fail(ex); } } },
           STATUSES.map(s => h('option', { value: s, selected: s === b.status }, STATUS_LABEL[s])))),
-        h('td', {}, h('div', { class: 'a-row-actions' },
+        h('td', { class: 'a-td-actions' }, h('div', { class: 'a-row-actions' },
           waBtn('WhatsApp', b.phone, bookingMessage(b)),
           btn('Create bill', () => { B = billFromBooking(b); go('billing'); }, 'btn-sm btn-alt'),
           btn('Delete', async () => { if (await confirmBox('Delete booking ' + b.ref + ' for ' + b.name + '?', 'Delete')) { try { await api('DELETE', '/api/admin/bookings/' + b.id); await load(); rerender(); toast('Booking deleted'); } catch (ex) { fail(ex); } } }, 'btn-sm btn-danger')))))))
@@ -270,10 +270,10 @@
       const l = D.invoices.slice().reverse().filter(i => !s || (i.client.name + i.client.phone + i.no).toLowerCase().includes(s)).slice(0, 60);
       hist.replaceChildren(l.length ? h('div', { class: 'a-scroll' }, h('table', { class: 'a-table' }, h('thead', {}, h('tr', {}, ['Invoice', 'Client', 'Total', ''].map(t => h('th', { text: t })))),
         h('tbody', {}, l.map(i => h('tr', { style: i.void ? 'opacity:.5' : '' },
-          h('td', {}, h('b', { text: i.no }), h('br'), h('span', { class: 'muted', text: fmtDate(i.date, { day: 'numeric', month: 'short', year: 'numeric' }) })),
-          h('td', {}, i.client.name, h('br'), h('span', { class: 'muted', text: i.client.phone })),
-          h('td', { text: i.void ? 'Void' : inr(i.total) }),
-          h('td', {}, i.void ? null : h('div', { class: 'a-row-actions' }, waBtn('Send', i.client.phone, invoiceMessage(i)),
+          h('td', { 'data-label': 'Invoice' }, h('b', { text: i.no }), h('br'), h('span', { class: 'muted', text: fmtDate(i.date, { day: 'numeric', month: 'short', year: 'numeric' }) })),
+          h('td', { 'data-label': 'Client' }, i.client.name, h('br'), h('span', { class: 'muted', text: i.client.phone })),
+          h('td', { 'data-label': 'Total', text: i.void ? 'Void' : inr(i.total) }),
+          h('td', { class: 'a-td-actions' }, i.void ? null : h('div', { class: 'a-row-actions' }, waBtn('Send', i.client.phone, invoiceMessage(i)),
             h('a', { class: 'btn btn-sm btn-alt', href: '/i/' + i.token, target: '_blank', rel: 'noopener' }, 'Open'),
             btn('Void', async () => { if (await confirmBox('Void invoice ' + i.no + '? The customer link will stop working.', 'Void invoice')) { try { await api('DELETE', '/api/admin/invoices/' + i.id); await load(); rerender(); toast('Invoice voided'); } catch (ex) { fail(ex); } } }, 'btn-sm btn-danger')))))))) : emptyNote('No invoices yet.', 'scissors'));
     }
@@ -301,11 +301,11 @@
     const table = h('table', { class: 'a-table' },
       h('thead', {}, h('tr', {}, ['Date', 'Category', 'Note', 'Amount', ''].map(t => h('th', { text: t })))),
       h('tbody', {}, list.map(e => h('tr', {},
-        h('td', { text: fmtDate(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) }),
-        h('td', { text: EXPENSE_CATS[e.category] || 'Other' }),
-        h('td', { text: e.note || '' }),
-        h('td', { class: 'r', text: inr(e.amount) }),
-        h('td', {}, btn('Delete', async () => { if (await confirmBox('Delete this expense of ' + inr(e.amount) + '?', 'Delete')) { try { await api('DELETE', '/api/admin/expenses/' + e.id); await load(); rerender(); toast('Expense deleted'); } catch (ex) { fail(ex); } } }, 'btn-sm btn-danger'))))));
+        h('td', { 'data-label': 'Date', text: fmtDate(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) }),
+        h('td', { 'data-label': 'Category', text: EXPENSE_CATS[e.category] || 'Other' }),
+        h('td', { 'data-label': 'Note', text: e.note || '' }),
+        h('td', { class: 'r', 'data-label': 'Amount', text: inr(e.amount) }),
+        h('td', { class: 'a-td-actions' }, btn('Delete', async () => { if (await confirmBox('Delete this expense of ' + inr(e.amount) + '?', 'Delete')) { try { await api('DELETE', '/api/admin/expenses/' + e.id); await load(); rerender(); toast('Expense deleted'); } catch (ex) { fail(ex); } } }, 'btn-sm btn-danger'))))));
     return h('div', {}, h('div', { class: 'a-scroll' }, table),
       h('p', { class: 'a-note', style: 'text-align:right;margin-top:8px', text: 'Total: ' + inr(total) }));
   }
@@ -373,9 +373,9 @@
       const l = D.clients.filter(c => !s || (c.name + c.phone).toLowerCase().includes(s));
       box.replaceChildren(l.length ? h('div', { class: 'a-scroll' }, h('table', { class: 'a-table' },
         h('thead', {}, h('tr', {}, ['Client', 'Bookings', 'Bills', 'Billed', 'Last visit', ''].map(t => h('th', { text: t })))),
-        h('tbody', {}, l.map(c => h('tr', {}, h('td', {}, h('b', { text: c.name }), h('br'), h('span', { class: 'muted', text: c.phone + (c.email ? '  ' + c.email : '') })),
-          h('td', { text: c.bookings }), h('td', { text: c.visits }), h('td', { text: inr(c.billed) }), h('td', { text: c.last ? fmtDate(c.last, { day: 'numeric', month: 'short', year: 'numeric' }) : '' }),
-          h('td', {}, h('div', { class: 'a-row-actions' }, btn('New bill', () => { B = newBill({ client: { name: c.name, phone: c.phone, email: c.email } }); go('billing'); }, 'btn-sm btn-alt'),
+        h('tbody', {}, l.map(c => h('tr', {}, h('td', { 'data-label': 'Client' }, h('b', { text: c.name }), h('br'), h('span', { class: 'muted', text: c.phone + (c.email ? '  ' + c.email : '') })),
+          h('td', { 'data-label': 'Bookings', text: c.bookings }), h('td', { 'data-label': 'Bills', text: c.visits }), h('td', { 'data-label': 'Billed', text: inr(c.billed) }), h('td', { 'data-label': 'Last visit', text: c.last ? fmtDate(c.last, { day: 'numeric', month: 'short', year: 'numeric' }) : '' }),
+          h('td', { class: 'a-td-actions' }, h('div', { class: 'a-row-actions' }, btn('New bill', () => { B = newBill({ client: { name: c.name, phone: c.phone, email: c.email } }); go('billing'); }, 'btn-sm btn-alt'),
             waBtn('WhatsApp', c.phone, 'Hi ' + c.name + ', '))))))))
         : emptyNote('Clients appear here after their first booking or bill.', 'comb'));
     }
