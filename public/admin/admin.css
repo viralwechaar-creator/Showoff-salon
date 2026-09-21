@@ -164,10 +164,18 @@ dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
 
   .a-table thead { display: none; }
   .a-table, .a-table tbody, .a-table tr, .a-table td { display: block; width: 100%; }
-  .a-table tr { border: 1px solid var(--line); border-radius: 14px; padding: 4px 14px; margin-bottom: 12px; }
-  .a-table td { border-bottom: 1px solid var(--line); padding: 10px 0; }
+  .a-table tr { border: 1px solid var(--line); border-radius: 14px; padding: 2px 14px; margin-bottom: 10px; }
+  .a-table td { border-bottom: 1px solid var(--line); padding: 7px 0; font-size: 14px; }
   .a-table tr td:last-child { border-bottom: 0; }
-  .a-table td[data-label]::before { content: attr(data-label); display: block; color: var(--muted); font-size: 12px; font-weight: 500; margin-bottom: 3px; }
-  .a-table td.r { text-align: left; }
-  .a-table td.a-td-actions { padding-top: 6px; }
+  .a-table td[data-label] { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .a-table td[data-label]::before { content: attr(data-label); flex-shrink: 0; color: var(--muted); font-size: 12px; font-weight: 500; }
+  .a-table td.a-td-actions { padding-top: 8px; }
+  .a-table td[data-label="Client"], .a-table td[data-label="When"], .a-table td[data-label="Invoice"],
+  .a-table td[data-label="Services"], .a-table td[data-label="Note"], .a-table td[data-label="Status"] {
+    display: block;
+  }
+  .a-table td[data-label="Client"]::before, .a-table td[data-label="When"]::before, .a-table td[data-label="Invoice"]::before,
+  .a-table td[data-label="Services"]::before, .a-table td[data-label="Note"]::before, .a-table td[data-label="Status"]::before {
+    display: block; margin-bottom: 3px;
+  }
 }
