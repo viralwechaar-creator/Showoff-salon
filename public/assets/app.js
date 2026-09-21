@@ -70,7 +70,12 @@
   $('#navOverlayClose').addEventListener('click', () => setMenu(false));
 
   const hdr = $('#hdr');
-  const syncHdrScroll = () => hdr.classList.toggle('is-scrolled', scrollY > 8);
+  const scrollProgress = $('#scrollProgress');
+  const syncHdrScroll = () => {
+    hdr.classList.toggle('is-scrolled', scrollY > 8);
+    const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    scrollProgress.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0) + ')';
+  };
   syncHdrScroll();
   addEventListener('scroll', syncHdrScroll, { passive: true });
 
@@ -267,11 +272,12 @@
 
   /* ---------- scroll reveal + hero parallax ---------- */
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const targets = $$('.sec-head, .gal > *, .team .person, .about-body, .panel, .facts > div');
+    const targets = $$('.sec-head, .gal > *, .team .person, .about-body, .panel, .facts > div, .svc-stats > div');
     targets.forEach(el => el.classList.add('sr'));
     $$('.gal > *').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 300) + 'ms'; });
     $$('.team .person').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 80, 320) + 'ms'; });
     $$('.facts > div').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 60, 240) + 'ms'; });
+    $$('.svc-stats > div').forEach((el, i) => { el.style.transitionDelay = Math.min(i * 70, 210) + 'ms'; });
 
     const io = new IntersectionObserver(entries => {
       entries.forEach(entry => {

@@ -48,7 +48,12 @@
   $('#menuBtnIco').replaceChildren(icon('shears', 'ico-open'), icon('close', 'ico-close'));
 
   const hdr = $('#hdr');
-  const syncHdrScroll = () => hdr.classList.toggle('is-scrolled', scrollY > 8);
+  const scrollProgress = $('#scrollProgress');
+  const syncHdrScroll = () => {
+    hdr.classList.toggle('is-scrolled', scrollY > 8);
+    const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    scrollProgress.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0) + ')';
+  };
   syncHdrScroll();
   addEventListener('scroll', syncHdrScroll, { passive: true });
 
@@ -138,11 +143,21 @@
     $$('.tab', tabs).forEach((t, i) => { t.setAttribute('aria-selected', i === idx); if (i === idx && t.scrollIntoView) { const l = t.offsetLeft - 8; if (Math.abs(tabs.scrollLeft - l) > tabs.clientWidth * .6 || t.offsetLeft < tabs.scrollLeft || t.offsetLeft + t.offsetWidth > tabs.scrollLeft + tabs.clientWidth) tabs.scrollTo({ left: l, behavior: 'smooth' }); } });
     prev.disabled = idx <= 0; next.disabled = idx >= cats.length - 1;
   }
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   function goTo(i) {
     const target = Math.max(0, Math.min(cats.length - 1, i));
-    if (slider.children[idx]) slider.children[idx].hidden = true;
+    if (target === idx) return;
+    const outgoing = slider.children[idx];
     idx = target;
-    if (slider.children[idx]) slider.children[idx].hidden = false;
+    const incoming = slider.children[idx];
+    if (incoming) {
+      incoming.hidden = false;
+      if (!reduceMotion) {
+        incoming.classList.add('slide-enter');
+        requestAnimationFrame(() => requestAnimationFrame(() => incoming.classList.remove('slide-enter')));
+      }
+    }
+    if (outgoing && outgoing !== incoming) outgoing.hidden = true;
     syncMenu();
   }
   prev.addEventListener('click', () => goTo(idx - 1));
@@ -154,6 +169,20 @@
 
   const wantCat = new URLSearchParams(location.search).get('cat');
   if (wantCat) { const i = cats.findIndex(c => c.id === wantCat); if (i >= 0) goTo(i); }
+
+  /* ---------- scroll reveal ---------- */
+  if (!reduceMotion) {
+    const revealTargets = $$('.menu-book-cta .lead, .menu-book-cta .btn');
+    revealTargets.forEach(el => el.classList.add('sr'));
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('sr-in');
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    revealTargets.forEach(el => io.observe(el));
+  }
 
   /* ---------- background music ---------- */
   (function () {

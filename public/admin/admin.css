@@ -8,9 +8,10 @@ body.adm { background: var(--tint); overflow-x: hidden; }
 
 /* floating icon rail */
 .a-rail { position: sticky; top: 20px; background: var(--plum); border-radius: 22px; padding: 14px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: var(--shadow-md); }
-.a-rail button { position: relative; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: none; border: 0; color: var(--cream); opacity: .8; }
+.a-rail button { position: relative; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: none; border: 0; color: var(--cream); opacity: .8; transition: opacity .2s var(--ease), transform .1s var(--ease); }
 .a-rail button .ico { width: 20px; height: 20px; }
 .a-rail button:hover { opacity: 1; }
+.a-rail button:active { transform: scale(.9); }
 .a-rail button[aria-current="page"] { background: rgba(243,230,200,.14); opacity: 1; color: var(--gold); }
 .a-rail button:last-of-type { margin-top: auto; }
 .a-rail button:last-of-type::before { content: ''; position: absolute; top: -8px; left: 10px; right: 10px; height: 1px; background: rgba(243,230,200,.2); }
@@ -23,9 +24,10 @@ body.adm { background: var(--tint); overflow-x: hidden; }
 .a-side-profile-text b { font-size: 14px; font-weight: 600; }
 .a-side-profile-text small { font-size: 12px; color: var(--muted); }
 #sideNav { display: grid; gap: 2px; }
-#sideNav button { display: flex; align-items: center; gap: 10px; text-align: left; background: none; border: 0; color: var(--plum); padding: 10px 12px; border-radius: 11px; font-size: 15px; }
+#sideNav button { display: flex; align-items: center; gap: 10px; text-align: left; background: none; border: 0; color: var(--plum); padding: 10px 12px; border-radius: 11px; font-size: 15px; transition: background .2s var(--ease), transform .1s var(--ease); }
 #sideNav button .ico { width: 18px; height: 18px; color: var(--muted); flex: none; }
 #sideNav button:hover { background: var(--tint); }
+#sideNav button:active { transform: scale(.98); }
 #sideNav button[aria-current="page"] { background: var(--plum); color: #fff; font-weight: 500; }
 #sideNav button[aria-current="page"] .ico { color: var(--gold); }
 #sideNav .badge { margin-left: auto; background: var(--gold); color: var(--plum); font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 99px; }
@@ -154,7 +156,8 @@ dialog.a-dialog h2 { font-size: 28px; margin-bottom: 16px; }
     display: flex; position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom));
     z-index: 40; background: var(--plum); border-radius: 20px; padding: 6px; box-shadow: 0 16px 32px -12px rgba(57,29,33,.45);
   }
-  .a-tabbar button { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: 0; border-radius: 14px; color: var(--cream); opacity: .82; padding: 8px 4px 7px; font-size: 11px; }
+  .a-tabbar button { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: 0; border-radius: 14px; color: var(--cream); opacity: .82; padding: 8px 4px 7px; font-size: 11px; transition: opacity .2s var(--ease), background .2s var(--ease), transform .1s var(--ease); }
+  .a-tabbar button:active { transform: scale(.92); }
   .a-tabbar button .ico { width: 21px; height: 21px; }
   .a-tabbar button[aria-current="page"] { opacity: 1; background: rgba(243,230,200,.14); color: var(--gold); }
   .a-tabbar button .a-tab-dot { position: absolute; top: 6px; left: 50%; margin-left: 5px; width: 7px; height: 7px; border-radius: 99px; background: var(--gold); }
